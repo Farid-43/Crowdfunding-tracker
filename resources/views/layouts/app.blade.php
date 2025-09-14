@@ -42,22 +42,33 @@
                 <!-- Auth Links -->
                 <div class="flex items-center space-x-4">
                     @guest
-                        <a href="#" class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">
+                        <a href="{{ route('login') }}" class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">
                             Login
                         </a>
-                        <a href="#" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                        <a href="{{ route('register') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium">
                             Register
                         </a>
                     @else
-                        <a href="#" class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">
+                        <a href="{{ route('dashboard') }}" class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">
                             Dashboard
                         </a>
-                        <form method="POST" action="#" class="inline">
-                            @csrf
-                            <button type="submit" class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">
-                                Logout
+                        <div class="relative">
+                            <button x-data x-on:click="$refs.dropdown.classList.toggle('hidden')" class="flex items-center text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">
+                                {{ Auth::user()->name }}
+                                <svg class="ml-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
                             </button>
-                        </form>
+                            <div x-ref="dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                                <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        Logout
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                     @endguest
                 </div>
             </div>
@@ -110,5 +121,8 @@
             </div>
         </div>
     </footer>
+
+    <!-- Alpine.js for dropdown functionality -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </body>
 </html>
