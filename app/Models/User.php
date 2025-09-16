@@ -64,6 +64,14 @@ class User extends Authenticatable
     }
 
     /**
+     * User has many campaigns (one-to-many relationship)
+     */
+    public function campaigns()
+    {
+        return $this->hasMany(Campaign::class);
+    }
+
+    /**
      * Scope to get only admin users
      */
     public function scopeAdmins($query)
