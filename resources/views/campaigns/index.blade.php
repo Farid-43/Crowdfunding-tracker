@@ -1,45 +1,121 @@
 @extends('layouts.app')
 
-@section('title', 'All Campaigns - Crowdfunding Tracker')
-
 @section('content')
-<div class="bg-white py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center">
-            <h1 class="text-3xl font-bold text-gray-900 mb-4">All Campaigns</h1>
-            <p class="text-lg text-gray-600 mb-8">
-                Discover amazing projects and help bring them to life
-            </p>
-            
-            <!-- Search and Filter Section -->
-            <div class="bg-gray-50 rounded-lg p-6 mb-8">
-                <div class="flex flex-col md:flex-row gap-4 items-center justify-center">
-                    <input type="text" 
-                           placeholder="Search campaigns..." 
-                           class="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                    <select class="w-full md:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                        <option value="">All Categories</option>
-                        <option value="technology">Technology</option>
-                        <option value="health">Health</option>
-                        <option value="education">Education</option>
-                        <option value="charity">Charity</option>
-                    </select>
-                    <button class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium">
-                        Search
-                    </button>
-                </div>
-            </div>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">All Campaigns</h1>
+            <p class="text-gray-600 mt-2">Discover and support amazing projects</p>
+        </div>
+        @auth
+            <a href="{{ route('campaigns.create') }}" 
+               class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200">
+                Create Campaign
+            </a>
+        @endauth
+    </div>
 
-            <!-- Placeholder message -->
-            <div class="bg-blue-50 border border-blue-200 rounded-lg p-8">
-                <div class="text-6xl mb-4">🚧</div>
-                <h2 class="text-2xl font-semibold text-gray-900 mb-2">Coming Soon!</h2>
-                <p class="text-gray-600">
-                    Campaign listing will be implemented in Day 6. 
-                    For now, check out the featured campaigns on the <a href="{{ route('home') }}" class="text-indigo-600 hover:text-indigo-800 underline">home page</a>!
-                </p>
+    <!-- Campaign Grid -->
+    @if($campaigns->count() > 0)
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @foreach($campaigns as $campaign)
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-200 flex flex-col h-full">
+                    <!-- Campaign Image - Fixed Height -->
+                    <div class="h-48 bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center flex-shrink-0">
+                        @if($campaign->image_path)
+                            <img src="{{ $campaign->image_path }}" 
+                                 alt="{{ $campaign->title }}" 
+                                 class="w-full h-full object-cover"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <span class="text-white text-lg font-semibold hidden items-center justify-center w-full h-full">{{ $campaign->category }}</span>
+                        @else
+                            <span class="text-white text-lg font-semibold">{{ $campaign->category }}</span>
+                        @endif
+                    </div>
+                    
+                    <!-- Campaign Content -->
+                    <div class="p-6 flex flex-col flex-grow">
+                        <!-- Featured Badge -->
+                        @if($campaign->featured)
+                            <span class="inline-block bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-1 rounded-full mb-3 self-start">
+                                ⭐ Featured
+                            </span>
+                        @endif
+                        
+                        <!-- Title - Natural height with more space -->
+                        <h3 class="text-xl font-semibold text-gray-900 mb-3 leading-tight">
+                            {{ $campaign->title }}
+                        </h3>
+                        
+                        <!-- Short Description - Natural height -->
+                        <p class="text-gray-600 text-sm mb-4 leading-relaxed flex-grow">
+                            {{ $campaign->short_description }}
+                        </p>
+                        
+                        <!-- Bottom section always at bottom -->
+                        <div class="mt-auto">
+                            <!-- Creator -->
+                            <p class="text-xs text-gray-500 mb-4">
+                                by <span class="font-medium">{{ $campaign->user->name }}</span>
+                            </p>
+                            
+                            <!-- Progress Bar -->
+                            <div class="mb-4">
+                                <div class="flex justify-between text-sm text-gray-600 mb-2">
+                                    <span>${{ number_format($campaign->current_amount) }} raised</span>
+                                    <span>{{ $campaign->progress_percentage }}%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" 
+                                         style="width: {{ min(100, $campaign->progress_percentage) }}%"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Campaign Stats -->
+                            <div class="flex justify-between text-sm text-gray-600 mb-4">
+                                <span>${{ number_format($campaign->goal_amount) }} goal</span>
+                                <span>{{ $campaign->days_remaining }} days left</span>
+                            </div>
+                            
+                            <!-- View Button -->
+                            <a href="{{ route('campaigns.show', $campaign) }}" 
+                               class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded transition duration-200">
+                                View Campaign
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+        
+        <!-- Pagination -->
+        <div class="mt-8">
+            {{ $campaigns->links() }}
+        </div>
+    @else
+        <!-- Empty State -->
+        <div class="text-center py-12">
+            <div class="max-w-md mx-auto">
+                <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No campaigns yet</h3>
+                <p class="text-gray-600 mb-4">Be the first to create a campaign and start fundraising!</p>
+                @auth
+                    <a href="{{ route('campaigns.create') }}" 
+                       class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition duration-200">
+                        Create First Campaign
+                    </a>
+                @else
+                    <p class="text-sm text-gray-500">
+                        <a href="{{ route('login') }}" class="text-blue-600 hover:text-blue-800">Sign in</a> to create a campaign
+                    </p>
+                @endauth
             </div>
         </div>
-    </div>
+    @endif
 </div>
 @endsection

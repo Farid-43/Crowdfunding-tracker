@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CampaignController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -9,10 +10,14 @@ Route::get('/', function () {
     return view('home');
 })->name('home');
 
-// Campaigns routes (placeholder for now)
-Route::get('/campaigns', function () {
-    return view('campaigns.index');
-})->name('campaigns.index');
+// Campaign creation requires authentication (must come before resource routes)
+Route::middleware('auth')->group(function () {
+    Route::get('/campaigns/create', [CampaignController::class, 'create'])->name('campaigns.create');
+    Route::post('/campaigns', [CampaignController::class, 'store'])->name('campaigns.store');
+});
+
+// Campaign resource routes
+Route::resource('campaigns', CampaignController::class)->only(['index', 'show']);
 
 // Logout page
 Route::get('/logout-page', function () {
