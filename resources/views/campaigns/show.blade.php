@@ -27,6 +27,22 @@
 
         <!-- Campaign Content -->
         <div class="p-8">
+            <!-- Display success message -->
+            @if(session('success'))
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                    <div class="flex">
+                        <div class="text-green-400">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <!-- Title and Creator -->
             <div class="mb-6">
                 <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ $campaign->title }}</h1>
@@ -75,9 +91,9 @@
                         <button class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200">
                             Back This Project
                         </button>
-                        @if(auth()->id() === $campaign->user_id)
-                            <a href="#" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition duration-200">
-                                Edit Campaign
+                        @if(auth()->user()->role === 'admin')
+                            <a href="{{ route('campaigns.edit', $campaign) }}" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition duration-200">
+                                Edit Campaign (Admin)
                             </a>
                         @endif
                     @else
@@ -155,6 +171,33 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Campaign Actions (Edit/Delete) -->
+            @auth
+                @if(auth()->user()->role === 'admin')
+                    <div class="border-t pt-6 mb-6">
+                        <div class="flex gap-4">
+                            <!-- Edit button for admins only -->
+                            <a href="{{ route('campaigns.edit', $campaign) }}" 
+                               class="bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
+                                Edit Campaign (Admin)
+                            </a>
+                            
+                            <!-- Delete button only for admins -->
+                            <form method="POST" action="{{ route('campaigns.destroy', $campaign) }}" 
+                                  onsubmit="return confirm('Are you sure you want to delete this campaign? This action cannot be undone and will affect all associated donations.')"
+                                  class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" 
+                                        class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
+                                    Delete Campaign (Admin)
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                @endif
+            @endauth
 
             <!-- Navigation -->
             <div class="border-t pt-6">

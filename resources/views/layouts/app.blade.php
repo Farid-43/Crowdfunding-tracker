@@ -49,12 +49,9 @@
                             Register
                         </a>
                     @else
-                        <a href="{{ route('dashboard') }}" class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">
-                            Dashboard
-                        </a>
                         @if(Auth::user()->isAdmin())
-                            <a href="#" class="text-orange-600 hover:text-orange-800 px-3 py-2 text-sm font-medium">
-                                Admin Panel
+                            <a href="{{ route('admin.campaigns') }}" class="text-orange-600 hover:text-orange-800 px-3 py-2 text-sm font-medium">
+                                Dashboard
                             </a>
                         @endif
                         <div class="relative" x-data="{ open: false }">
@@ -70,7 +67,7 @@
                             <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
                                 <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
                                 @if(Auth::user()->isAdmin())
-                                    <a href="#" class="block px-4 py-2 text-sm text-orange-600 hover:bg-orange-50">Admin Panel</a>
+                                    <a href="{{ route('admin.campaigns') }}" class="block px-4 py-2 text-sm text-orange-600 hover:bg-orange-50">Dashboard</a>
                                 @endif
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf

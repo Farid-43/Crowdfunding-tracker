@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CampaignController;
+use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -10,13 +11,30 @@ Route::get('/', function () {
     return view('home');
 })->name('home');
 
-// Campaign creation requires authentication (must come before resource routes)
+// Campaign creation and editing requires authentication (must come before resource routes)
 Route::middleware('auth')->group(function () {
     Route::get('/campaigns/create', [CampaignController::class, 'create'])->name('campaigns.create');
     Route::post('/campaigns', [CampaignController::class, 'store'])->name('campaigns.store');
+    Route::get('/campaigns/{campaign}/edit', [CampaignController::class, 'edit'])->name('campaigns.edit');
+    Route::put('/campaigns/{campaign}', [CampaignController::class, 'update'])->name('campaigns.update');
 });
 
-// Campaign resource routes
+// Campaign deletion - Admin only
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::delete('/campaigns/{campaign}', [CampaignController::class, 'destroy'])->name('campaigns.destroy');
+});
+
+// Admin routes
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/campaigns', [AdminController::class, 'campaigns'])->name('admin.campaigns');
+    Route::get('/users', [AdminController::class, 'users'])->name('admin.users');
+    Route::get('/analytics', [AdminController::class, 'analytics'])->name('admin.analytics');
+    Route::get('/reports', [AdminController::class, 'reports'])->name('admin.reports');
+    Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
+    Route::get('/categories', [AdminController::class, 'categories'])->name('admin.categories');
+});
+
+// Campaign resource routes (public routes)
 Route::resource('campaigns', CampaignController::class)->only(['index', 'show']);
 
 // Logout page
@@ -31,10 +49,6 @@ Route::get('/logout-now', function () {
     request()->session()->regenerateToken();
     return redirect('/')->with('status', 'You have been logged out successfully.');
 })->middleware('auth')->name('logout.get');
-
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

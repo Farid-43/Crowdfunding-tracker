@@ -1,0 +1,136 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Campaign;
+use App\Models\User;
+use Illuminate\Http\Request;
+
+class AdminController extends Controller
+{
+    /**
+     * Display all campaigns for admin management
+     */
+    public function campaigns()
+    {
+        $campaigns = Campaign::with('user')
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+        
+        return view('admin.campaigns', compact('campaigns'));
+    }
+
+    /**
+     * Display all users for admin management
+     */
+    public function users()
+    {
+        // Get all users with their campaign count
+        $users = User::withCount('campaigns')
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+        
+        return view('admin.users', compact('users'));
+    }
+
+    /**
+     * Display platform analytics
+     */
+    public function analytics()
+    {
+        $analytics = [
+            'total_campaigns' => Campaign::count(),
+            'active_campaigns' => Campaign::where('status', 'active')->count(),
+            'completed_campaigns' => Campaign::where('status', 'completed')->count(),
+            'total_users' => User::count(),
+            'admin_users' => User::where('role', 'admin')->count(),
+            'regular_users' => User::where('role', 'user')->count(),
+            'total_raised' => Campaign::sum('current_amount'),
+            'average_campaign_goal' => Campaign::avg('goal_amount'),
+            'campaigns_this_month' => Campaign::whereMonth('created_at', now()->month)->count(),
+            'users_this_month' => User::whereMonth('created_at', now()->month)->count(),
+        ];
+
+        // Get campaign creation trends (last 7 days)
+        $campaign_trends = collect(range(6, 0))->map(function ($days_ago) {
+            $date = now()->subDays($days_ago);
+            return [
+                'date' => $date->format('M j'),
+                'campaigns' => Campaign::whereDate('created_at', $date)->count(),
+                'users' => User::whereDate('created_at', $date)->count(),
+            ];
+        });
+
+        return view('admin.analytics', compact('analytics', 'campaign_trends'));
+    }
+
+    /**
+     * Display platform reports
+     */
+    public function reports()
+    {
+        $reports = [
+            'top_categories' => Campaign::selectRaw('category, COUNT(*) as count, SUM(current_amount) as total_raised')
+                ->groupBy('category')
+                ->orderBy('total_raised', 'desc')
+                ->get(),
+            
+            'top_creators' => User::withCount('campaigns')
+                ->with(['campaigns' => function($query) {
+                    $query->selectRaw('user_id, SUM(current_amount) as total_raised')
+                        ->groupBy('user_id');
+                }])
+                ->having('campaigns_count', '>', 0)
+                ->orderBy('campaigns_count', 'desc')
+                ->limit(10)
+                ->get(),
+                
+            'recent_activity' => Campaign::with('user')
+                ->latest()
+                ->limit(20)
+                ->get(),
+        ];
+
+        return view('admin.reports', compact('reports'));
+    }
+
+    /**
+     * Display platform settings
+     */
+    public function settings()
+    {
+        $settings = [
+            'platform_name' => 'CrowdFunder',
+            'maintenance_mode' => false,
+            'registration_enabled' => true,
+            'campaign_approval_required' => false,
+            'max_campaign_duration' => 90, // days
+            'min_campaign_goal' => 100,
+            'max_campaign_goal' => 1000000,
+            'featured_campaigns_count' => 6,
+        ];
+
+        return view('admin.settings', compact('settings'));
+    }
+
+    /**
+     * Display category management
+     */
+    public function categories()
+    {
+        $categories = [
+            'Technology' => Campaign::where('category', 'Technology')->count(),
+            'Art' => Campaign::where('category', 'Art')->count(),
+            'Music' => Campaign::where('category', 'Music')->count(),
+            'Film' => Campaign::where('category', 'Film')->count(),
+            'Games' => Campaign::where('category', 'Games')->count(),
+            'Publishing' => Campaign::where('category', 'Publishing')->count(),
+            'Fashion' => Campaign::where('category', 'Fashion')->count(),
+            'Food' => Campaign::where('category', 'Food')->count(),
+            'Health' => Campaign::where('category', 'Health')->count(),
+            'Education' => Campaign::where('category', 'Education')->count(),
+        ];
+
+        return view('admin.categories', compact('categories'));
+    }
+} 

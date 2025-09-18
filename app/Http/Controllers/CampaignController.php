@@ -81,24 +81,64 @@ class CampaignController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Campaign $campaign)
     {
-        //
+        // Check authorization: only admin can edit
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized action. Only administrators can edit campaigns.');
+        }
+
+        return view('campaigns.edit', compact('campaign'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Campaign $campaign)
     {
-        //
+        // Check authorization: only admin can update
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized action. Only administrators can update campaigns.');
+        }
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'short_description' => 'required|string|max:500',
+            'description' => 'required|string|min:100',
+            'goal_amount' => 'required|numeric|min:100|max:1000000',
+            'deadline' => 'required|date|after:today',
+            'category' => 'required|string|in:Technology,Art,Music,Film,Games,Publishing,Fashion,Food,Health,Education',
+            'image_url' => 'nullable|url|max:2048'
+        ]);
+
+        $campaign->update([
+            'title' => $validated['title'],
+            'short_description' => $validated['short_description'],
+            'description' => $validated['description'],
+            'goal_amount' => $validated['goal_amount'],
+            'deadline' => $validated['deadline'],
+            'category' => $validated['category'],
+            'image_path' => $validated['image_url'] ?? $campaign->image_path,
+        ]);
+
+        return redirect()->route('campaigns.show', $campaign)
+                        ->with('success', 'Campaign updated successfully!');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Campaign $campaign)
     {
-        //
+        // Check authorization: only admin can delete campaigns
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized action. Only administrators can delete campaigns.');
+        }
+
+        $campaignTitle = $campaign->title;
+        $campaign->delete();
+
+        return redirect()->route('campaigns.index')
+                        ->with('success', "Campaign '{$campaignTitle}' has been deleted successfully!");
     }
 }
