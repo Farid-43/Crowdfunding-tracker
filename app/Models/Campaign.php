@@ -39,7 +39,31 @@ class Campaign extends Model
         return $this->belongsTo(User::class);
     }
 
-    // In future: donations, comments, rewards relationships will be added
+    /**
+     * Get all donations for this campaign
+     */
+    public function donations()
+    {
+        return $this->hasMany(Donation::class);
+    }
+
+    /**
+     * Get all completed donations for this campaign
+     */
+    public function completedDonations()
+    {
+        return $this->donations()->completed();
+    }
+
+    /**
+     * Get public donations (non-anonymous) for display
+     */
+    public function publicDonations()
+    {
+        return $this->donations()->public()->completed();
+    }
+
+    // In future: comments, rewards relationships will be added
 
     // Helper methods
     public function getProgressPercentageAttribute()

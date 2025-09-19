@@ -72,6 +72,38 @@ class User extends Authenticatable
     }
 
     /**
+     * User has many donations (one-to-many relationship)
+     */
+    public function donations()
+    {
+        return $this->hasMany(Donation::class);
+    }
+
+    /**
+     * Get user's completed donations
+     */
+    public function completedDonations()
+    {
+        return $this->donations()->completed();
+    }
+
+    /**
+     * Get total amount donated by user
+     */
+    public function getTotalDonatedAttribute()
+    {
+        return $this->completedDonations()->sum('amount');
+    }
+
+    /**
+     * Get number of campaigns user has supported
+     */
+    public function getCampaignsSupportedCountAttribute()
+    {
+        return $this->completedDonations()->distinct('campaign_id')->count('campaign_id');
+    }
+
+    /**
      * Scope to get only admin users
      */
     public function scopeAdmins($query)

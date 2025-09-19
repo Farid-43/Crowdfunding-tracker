@@ -37,6 +37,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 // Campaign resource routes (public routes)
 Route::resource('campaigns', CampaignController::class)->only(['index', 'show']);
 
+// Dashboard route - redirect admins to admin dashboard, users to user dashboard
+Route::get('/dashboard', function () {
+    if (auth()->user()->role === 'admin') {
+        return redirect()->route('admin.campaigns');
+    }
+    return view('dashboard');
+})->middleware('auth')->name('dashboard');
+
 // Logout page
 Route::get('/logout-page', function () {
     return view('logout');
@@ -62,6 +70,64 @@ Route::middleware(['auth', 'admin'])->group(function () {
         return '<h1>🎉 Admin Access Granted!</h1><p>You are logged in as: ' . auth()->user()->name . ' (Role: ' . auth()->user()->role . ')</p>';
     })->name('admin.test');
 });
+
+// Test Donation models and relationships
+Route::get('/test-donations', function () {
+    $donations = \App\Models\Donation::with(['user', 'campaign'])->get();
+    
+    $html = '<h1>💰 Donation Models Test</h1>';
+    
+    foreach ($donations as $donation) {
+        $html .= '<div style="border:1px solid #ccc; margin:10px; padding:15px;">';
+        $html .= '<h3>Donation #' . $donation->id . '</h3>';
+        $html .= '<p><strong>Amount:</strong> $' . number_format($donation->amount, 2) . '</p>';
+        $html .= '<p><strong>Donor:</strong> ' . $donation->donor_name . '</p>';
+        $html .= '<p><strong>Campaign:</strong> ' . $donation->campaign->title . '</p>';
+        $html .= '<p><strong>Message:</strong> ' . ($donation->message ?: 'No message') . '</p>';
+        $html .= '<p><strong>Anonymous:</strong> ' . ($donation->anonymous ? 'Yes' : 'No') . '</p>';
+        $html .= '<p><strong>Status:</strong> ' . $donation->status . '</p>';
+        $html .= '</div>';
+    }
+    
+    // Test Campaign→Donation relationship
+    $html .= '<h2>📊 Campaign Donation Totals</h2>';
+    $campaigns = \App\Models\Campaign::with('donations')->get();
+    
+    foreach ($campaigns as $campaign) {
+        $totalDonations = $campaign->donations->sum('amount');
+        $donorCount = $campaign->donations->count();
+        
+        $html .= '<div style="border:2px solid #28a745; margin:10px; padding:15px;">';
+        $html .= '<h3>' . $campaign->title . '</h3>';
+        $html .= '<p><strong>Goal:</strong> $' . number_format($campaign->goal_amount, 2) . '</p>';
+        $html .= '<p><strong>Current Amount:</strong> $' . number_format($campaign->current_amount, 2) . '</p>';
+        $html .= '<p><strong>Donation Total:</strong> $' . number_format($totalDonations, 2) . '</p>';
+        $html .= '<p><strong>Number of Donors:</strong> ' . $donorCount . '</p>';
+        $html .= '<p><strong>Progress:</strong> ' . $campaign->progress_percentage . '%</p>';
+        $html .= '</div>';
+    }
+    
+    // Test User→Donation relationship
+    $html .= '<h2>👤 User Donation History</h2>';
+    $users = \App\Models\User::with('donations.campaign')->get();
+    
+    foreach ($users as $user) {
+        if ($user->donations->count() > 0) {
+            $html .= '<div style="border:2px solid #007acc; margin:10px; padding:15px;">';
+            $html .= '<h3>' . $user->name . ' (' . $user->email . ')</h3>';
+            $html .= '<p><strong>Total Donated:</strong> $' . number_format($user->total_donated, 2) . '</p>';
+            $html .= '<p><strong>Campaigns Supported:</strong> ' . $user->campaigns_supported_count . '</p>';
+            
+            foreach ($user->donations as $donation) {
+                $html .= '<p style="margin-left:20px;">• $' . number_format($donation->amount, 2) . ' to "' . $donation->campaign->title . '"</p>';
+            }
+            
+            $html .= '</div>';
+        }
+    }
+    
+    return $html;
+})->name('test.donations');
 
 // Test Campaign models and relationships
 Route::get('/test-campaigns', function () {
