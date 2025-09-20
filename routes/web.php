@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\DonationController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -10,6 +11,14 @@ use Illuminate\Support\Facades\Auth;
 Route::get('/', function () {
     return view('home');
 })->name('home');
+
+// Public campaign routes (viewing)
+Route::resource('campaigns', CampaignController::class)->only(['index', 'show']);
+
+// Donation routes (both auth and guest can donate)
+Route::get('/campaigns/{campaign}/donate', [DonationController::class, 'create'])->name('donations.create');
+Route::post('/campaigns/{campaign}/donate', [DonationController::class, 'store'])->name('donations.store');
+Route::get('/campaigns/{campaign}/donations/{donation}/thankyou', [DonationController::class, 'thankyou'])->name('donations.thankyou');
 
 // Campaign creation and editing requires authentication (must come before resource routes)
 Route::middleware('auth')->group(function () {

@@ -87,25 +87,39 @@
 
                 <!-- Action Buttons -->
                 <div class="mt-6 flex gap-4">
+                    @if(!$campaign->is_expired && $campaign->status === 'active')
+                        <!-- Donate Button for Active Campaigns -->
+                        <a href="{{ route('donations.create', $campaign) }}" 
+                           class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200 text-center">
+                            💚 Donate Now
+                        </a>
+                    @else
+                        <!-- Campaign Ended -->
+                        <div class="flex-1 bg-gray-400 text-white font-bold py-3 px-6 rounded-lg text-center cursor-not-allowed">
+                            Campaign Ended
+                        </div>
+                    @endif
+
                     @auth
-                        <button class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200">
-                            Back This Project
-                        </button>
                         @if(auth()->user()->role === 'admin')
-                            <a href="{{ route('campaigns.edit', $campaign) }}" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition duration-200">
+                            <a href="{{ route('campaigns.edit', $campaign) }}" 
+                               class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition duration-200">
                                 Edit Campaign (Admin)
                             </a>
                         @endif
-                    @else
-                        <div class="flex-1 text-center">
-                            <p class="text-gray-600 mb-3">Want to support this project?</p>
-                            <a href="{{ route('login') }}" 
-                               class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200">
-                                Sign In to Back This Project
-                            </a>
-                        </div>
                     @endauth
                 </div>
+
+                <!-- Guest User Encouragement -->
+                @guest
+                <div class="mt-4 text-center">
+                    <p class="text-sm text-gray-600">
+                        Have an account? 
+                        <a href="{{ route('login') }}" class="text-blue-600 hover:text-blue-800 font-medium">Sign in</a> 
+                        to track your donations
+                    </p>
+                </div>
+                @endguest
             </div>
 
             <!-- Campaign Description -->
