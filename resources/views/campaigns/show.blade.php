@@ -110,6 +110,17 @@
                     @endauth
                 </div>
 
+                <!-- Donation History Link -->
+                <div class="mt-4 text-center">
+                    <a href="{{ route('donations.campaign-history', $campaign) }}" 
+                       class="inline-flex items-center text-purple-600 hover:text-purple-800 font-medium text-sm">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                        </svg>
+                        View Donation History ({{ $campaign->donations_count ?? $campaign->donations->count() }} supporters)
+                    </a>
+                </div>
+
                 <!-- Guest User Encouragement -->
                 @guest
                 <div class="mt-4 text-center">

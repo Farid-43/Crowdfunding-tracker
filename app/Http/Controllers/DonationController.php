@@ -90,4 +90,40 @@ class DonationController extends Controller
 
         return view('donations.thankyou', compact('campaign', 'donation'));
     }
+
+    /**
+     * Show campaign donation history
+     */
+    public function campaignHistory(Campaign $campaign)
+    {
+        $donations = $campaign->publicDonations()
+            ->with('user')
+            ->latest()
+            ->paginate(20);
+
+        $totalDonations = $campaign->completedDonations()->count();
+        $totalAmount = $campaign->completedDonations()->sum('amount');
+
+        return view('donations.campaign-history', compact('campaign', 'donations', 'totalDonations', 'totalAmount'));
+    }
+
+    /**
+     * Show user's donation history (authenticated users only)
+     */
+    public function userHistory()
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        $donations = Auth::user()->donations()
+            ->with('campaign')
+            ->latest()
+            ->paginate(20);
+
+        $totalDonated = Auth::user()->total_donated;
+        $campaignsSupported = Auth::user()->campaigns_supported_count;
+
+        return view('donations.user-history', compact('donations', 'totalDonated', 'campaignsSupported'));
+    }
 }

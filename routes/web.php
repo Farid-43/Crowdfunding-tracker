@@ -20,6 +20,10 @@ Route::get('/campaigns/{campaign}/donate', [DonationController::class, 'create']
 Route::post('/campaigns/{campaign}/donate', [DonationController::class, 'store'])->name('donations.store');
 Route::get('/campaigns/{campaign}/donations/{donation}/thankyou', [DonationController::class, 'thankyou'])->name('donations.thankyou');
 
+// Donation history routes
+Route::get('/campaigns/{campaign}/donations', [DonationController::class, 'campaignHistory'])->name('donations.campaign-history');
+Route::get('/my-donations', [DonationController::class, 'userHistory'])->middleware('auth')->name('donations.user-history');
+
 // Campaign creation and editing requires authentication (must come before resource routes)
 Route::middleware('auth')->group(function () {
     Route::get('/campaigns/create', [CampaignController::class, 'create'])->name('campaigns.create');
