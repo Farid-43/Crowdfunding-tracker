@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DonationController;
+use App\Http\Controllers\CommentController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -23,6 +24,15 @@ Route::get('/campaigns/{campaign}/donations/{donation}/thankyou', [DonationContr
 // Donation history routes
 Route::get('/campaigns/{campaign}/donations', [DonationController::class, 'campaignHistory'])->name('donations.campaign-history');
 Route::get('/my-donations', [DonationController::class, 'userHistory'])->middleware('auth')->name('donations.user-history');
+
+// Comment routes (require authentication)
+Route::middleware('auth')->group(function () {
+    Route::get('/campaigns/{campaign}/comments', [CommentController::class, 'index'])->name('comments.index');
+    Route::post('/campaigns/{campaign}/comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::put('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+    Route::patch('/comments/{comment}/toggle-pin', [CommentController::class, 'togglePin'])->name('comments.toggle-pin');
+});
 
 // Campaign creation and editing requires authentication (must come before resource routes)
 Route::middleware('auth')->group(function () {

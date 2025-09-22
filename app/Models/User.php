@@ -80,6 +80,14 @@ class User extends Authenticatable
     }
 
     /**
+     * User has many comments (one-to-many relationship)
+     */
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    /**
      * Get user's completed donations
      */
     public function completedDonations()

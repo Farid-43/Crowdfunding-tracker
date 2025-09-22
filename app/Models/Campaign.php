@@ -63,7 +63,15 @@ class Campaign extends Model
         return $this->donations()->public()->completed();
     }
 
-    // In future: comments, rewards relationships will be added
+    /**
+     * Campaign has many comments (one-to-many relationship)
+     */
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    // In future: rewards relationships will be added
 
     // Helper methods
     public function getProgressPercentageAttribute()
