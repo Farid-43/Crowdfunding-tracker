@@ -71,7 +71,21 @@ class Campaign extends Model
         return $this->hasMany(Comment::class);
     }
 
-    // In future: rewards relationships will be added
+    /**
+     * Campaign has many rewards (one-to-many relationship)
+     */
+    public function rewards()
+    {
+        return $this->hasMany(Reward::class);
+    }
+
+    /**
+     * Get available rewards ordered by minimum amount
+     */
+    public function availableRewards()
+    {
+        return $this->rewards()->available()->ordered();
+    }
 
     // Helper methods
     public function getProgressPercentageAttribute()

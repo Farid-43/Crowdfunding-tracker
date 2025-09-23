@@ -10,6 +10,7 @@ class Donation extends Model
     protected $fillable = [
         'user_id',
         'campaign_id',
+        'reward_id',
         'amount',
         'donor_name',
         'donor_email',
@@ -39,6 +40,14 @@ class Donation extends Model
     public function campaign(): BelongsTo
     {
         return $this->belongsTo(Campaign::class);
+    }
+
+    /**
+     * Get the reward associated with this donation (optional)
+     */
+    public function reward(): BelongsTo
+    {
+        return $this->belongsTo(Reward::class);
     }
 
     /**

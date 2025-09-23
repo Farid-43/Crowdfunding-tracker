@@ -5,6 +5,7 @@ use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DonationController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\RewardController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -32,6 +33,17 @@ Route::middleware('auth')->group(function () {
     Route::put('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
     Route::patch('/comments/{comment}/toggle-pin', [CommentController::class, 'togglePin'])->name('comments.toggle-pin');
+});
+
+// Reward routes (require authentication for management)
+Route::get('/campaigns/{campaign}/rewards', [RewardController::class, 'index'])->name('rewards.index');
+Route::middleware('auth')->group(function () {
+    Route::get('/campaigns/{campaign}/rewards/create', [RewardController::class, 'create'])->name('rewards.create');
+    Route::post('/campaigns/{campaign}/rewards', [RewardController::class, 'store'])->name('rewards.store');
+    Route::get('/campaigns/{campaign}/rewards/{reward}', [RewardController::class, 'show'])->name('rewards.show');
+    Route::get('/campaigns/{campaign}/rewards/{reward}/edit', [RewardController::class, 'edit'])->name('rewards.edit');
+    Route::put('/campaigns/{campaign}/rewards/{reward}', [RewardController::class, 'update'])->name('rewards.update');
+    Route::delete('/campaigns/{campaign}/rewards/{reward}', [RewardController::class, 'destroy'])->name('rewards.destroy');
 });
 
 // Campaign creation and editing requires authentication (must come before resource routes)
@@ -198,5 +210,53 @@ Route::get('/test-campaigns', function () {
     
     return $html;
 })->name('test.campaigns');
+
+// Test Reward models and relationships
+Route::get('/test-rewards', function () {
+    $rewards = \App\Models\Reward::with('campaign')->get();
+    
+    $html = '<h1>🎁 Reward Models Test</h1>';
+    $html .= '<p><strong>Total Rewards:</strong> ' . $rewards->count() . '</p>';
+    
+    foreach ($rewards as $reward) {
+        $html .= '<div style="border:1px solid #ccc; margin:10px; padding:15px;">';
+        $html .= '<h3>🎁 ' . $reward->title . '</h3>';
+        $html .= '<p><strong>Campaign:</strong> ' . $reward->campaign->title . '</p>';
+        $html .= '<p><strong>Min Amount:</strong> $' . number_format($reward->minimum_amount, 2) . '</p>';
+        $html .= '<p><strong>Backers:</strong> ' . $reward->current_backers;
+        if ($reward->maximum_backers) {
+            $html .= ' / ' . $reward->maximum_backers;
+        } else {
+            $html .= ' (unlimited)';
+        }
+        $html .= '</p>';
+        $html .= '<p><strong>Description:</strong> ' . $reward->description . '</p>';
+        $html .= '<p><strong>Included Items:</strong> ' . implode(', ', $reward->included_items ?? []) . '</p>';
+        $html .= '<p><strong>Shipping:</strong> ' . $reward->shipping_info . '</p>';
+        $html .= '<p><strong>Delivery:</strong> ' . ($reward->estimated_delivery ? $reward->estimated_delivery->format('M j, Y') : 'TBD') . '</p>';
+        $html .= '<p><strong>Available:</strong> ' . ($reward->isAvailable() ? '✅ Yes' : '❌ No') . '</p>';
+        $html .= '<p><strong>Status:</strong> ' . $reward->availability_status . '</p>';
+        $html .= '</div>';
+    }
+    
+    // Test Campaign→Reward relationship
+    $html .= '<h2>📊 Campaign→Reward Relationships</h2>';
+    $campaigns = \App\Models\Campaign::with('rewards')->get();
+    
+    foreach ($campaigns as $campaign) {
+        $html .= '<div style="border:2px solid #007acc; margin:10px; padding:15px;">';
+        $html .= '<h3>' . $campaign->title . '</h3>';
+        $html .= '<p><strong>Total Rewards:</strong> ' . $campaign->rewards->count() . '</p>';
+        $html .= '<p><strong>Available Rewards:</strong> ' . $campaign->availableRewards()->count() . '</p>';
+        
+        foreach ($campaign->rewards->take(3) as $reward) {
+            $html .= '<p style="margin-left:20px;">• ' . $reward->title . ' ($' . number_format($reward->minimum_amount) . '+)</p>';
+        }
+        
+        $html .= '</div>';
+    }
+    
+    return $html;
+})->name('test.rewards');
 
 require __DIR__.'/auth.php';
