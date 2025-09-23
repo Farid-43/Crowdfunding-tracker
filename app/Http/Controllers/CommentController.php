@@ -14,14 +14,65 @@ class CommentController extends Controller
     /**
      * Display comments for a campaign
      */
-    public function index(Campaign $campaign): View
+    public function index(Request $request, Campaign $campaign): View
     {
-        $comments = $campaign->comments()
-            ->with('user')
-            ->ordered()
-            ->paginate(20);
+        $query = $campaign->comments()->with('user');
 
-        return view('comments.index', compact('campaign', 'comments'));
+        // Handle sorting
+        $sort = $request->get('sort', 'newest');
+        switch ($sort) {
+            case 'oldest':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'pinned':
+                $query->orderBy('is_pinned', 'desc')->orderBy('created_at', 'desc');
+                break;
+            case 'newest':
+            default:
+                $query->orderBy('created_at', 'desc');
+                break;
+        }
+
+        // Handle filtering
+        $filter = $request->get('filter');
+        if ($filter) {
+            switch ($filter) {
+                case 'pinned':
+                    $query->where('is_pinned', true);
+                    break;
+                case 'admin':
+                    $query->whereHas('user', function($q) {
+                        $q->where('role', 'admin');
+                    });
+                    break;
+                case 'creator':
+                    $query->where('user_id', $campaign->user_id);
+                    break;
+                case 'edited':
+                    $query->where('is_edited', true);
+                    break;
+            }
+        }
+
+        // Handle search
+        $search = $request->get('search');
+        if ($search) {
+            $query->where('content', 'LIKE', '%' . $search . '%');
+        }
+
+        $comments = $query->paginate(20)->withQueryString();
+
+        // Get comment statistics
+        $stats = [
+            'total' => $campaign->comments()->count(),
+            'pinned' => $campaign->comments()->where('is_pinned', true)->count(),
+            'admin_comments' => $campaign->comments()->whereHas('user', function($q) {
+                $q->where('role', 'admin');
+            })->count(),
+            'creator_comments' => $campaign->comments()->where('user_id', $campaign->user_id)->count(),
+        ];
+
+        return view('comments.index', compact('campaign', 'comments', 'stats', 'sort', 'filter', 'search'));
     }
 
     /**

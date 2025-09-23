@@ -55,6 +55,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/reports', [AdminController::class, 'reports'])->name('admin.reports');
     Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
     Route::get('/categories', [AdminController::class, 'categories'])->name('admin.categories');
+    Route::get('/comments', [AdminController::class, 'comments'])->name('admin.comments');
 });
 
 // Campaign resource routes (public routes)

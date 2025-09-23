@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Campaign;
+use App\Models\Comment;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -132,5 +133,80 @@ class AdminController extends Controller
         ];
 
         return view('admin.categories', compact('categories'));
+    }
+
+    /**
+     * Comment Management (Admin only)
+     */
+    public function comments(Request $request)
+    {
+        $this->authorize('admin');
+        
+        $query = Comment::with(['user', 'campaign']);
+
+        // Handle search
+        $search = $request->get('search');
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('content', 'LIKE', '%' . $search . '%')
+                  ->orWhereHas('user', function($subQ) use ($search) {
+                      $subQ->where('name', 'LIKE', '%' . $search . '%');
+                  })
+                  ->orWhereHas('campaign', function($subQ) use ($search) {
+                      $subQ->where('title', 'LIKE', '%' . $search . '%');
+                  });
+            });
+        }
+
+        // Handle filtering
+        $filter = $request->get('filter');
+        if ($filter) {
+            switch ($filter) {
+                case 'pinned':
+                    $query->where('is_pinned', true);
+                    break;
+                case 'edited':
+                    $query->where('is_edited', true);
+                    break;
+                case 'recent':
+                    $query->where('created_at', '>=', now()->subDays(7));
+                    break;
+            }
+        }
+
+        // Handle sorting
+        $sort = $request->get('sort', 'newest');
+        switch ($sort) {
+            case 'oldest':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'campaign':
+                $query->join('campaigns', 'comments.campaign_id', '=', 'campaigns.id')
+                      ->orderBy('campaigns.title', 'asc')
+                      ->select('comments.*');
+                break;
+            case 'user':
+                $query->join('users', 'comments.user_id', '=', 'users.id')
+                      ->orderBy('users.name', 'asc')
+                      ->select('comments.*');
+                break;
+            case 'newest':
+            default:
+                $query->orderBy('created_at', 'desc');
+                break;
+        }
+
+        $comments = $query->paginate(25)->withQueryString();
+
+        // Get statistics
+        $stats = [
+            'total' => Comment::count(),
+            'today' => Comment::whereDate('created_at', today())->count(),
+            'this_week' => Comment::where('created_at', '>=', now()->subDays(7))->count(),
+            'pinned' => Comment::where('is_pinned', true)->count(),
+            'edited' => Comment::where('is_edited', true)->count(),
+        ];
+
+        return view('admin.comments', compact('comments', 'stats', 'search', 'filter', 'sort'));
     }
 } 

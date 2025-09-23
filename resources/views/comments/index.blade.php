@@ -12,10 +12,94 @@
             <span class="text-gray-700">Comments</span>
         </nav>
         
-        <h1 class="text-3xl font-bold text-gray-900">Comments & Discussion</h1>
-        <p class="text-gray-600 mt-2">
-            All comments for <strong>{{ $campaign->title }}</strong>
-        </p>
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Comments & Discussion</h1>
+                <p class="text-gray-600 mt-2">
+                    All comments for <strong>{{ $campaign->title }}</strong>
+                </p>
+            </div>
+            
+            <!-- Comment Statistics -->
+            <div class="mt-4 lg:mt-0">
+                <div class="flex gap-4 text-sm">
+                    <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
+                        {{ $stats['total'] }} Total
+                    </div>
+                    @if($stats['pinned'] > 0)
+                        <div class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full">
+                            {{ $stats['pinned'] }} Pinned
+                        </div>
+                    @endif
+                    @if($stats['admin_comments'] > 0)
+                        <div class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full">
+                            {{ $stats['admin_comments'] }} Admin
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="mb-6 bg-white border border-gray-200 rounded-lg p-4">
+        <form method="GET" action="{{ route('comments.index', $campaign) }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- Search -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Search Comments</label>
+                <input 
+                    type="text" 
+                    name="search" 
+                    value="{{ $search }}"
+                    placeholder="Search comment content..."
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+            </div>
+            
+            <!-- Sort -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+                <select 
+                    name="sort" 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                    <option value="newest" {{ $sort === 'newest' ? 'selected' : '' }}>Newest First</option>
+                    <option value="oldest" {{ $sort === 'oldest' ? 'selected' : '' }}>Oldest First</option>
+                    <option value="pinned" {{ $sort === 'pinned' ? 'selected' : '' }}>Pinned First</option>
+                </select>
+            </div>
+            
+            <!-- Filter -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Filter</label>
+                <select 
+                    name="filter" 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                    <option value="">All Comments</option>
+                    <option value="pinned" {{ $filter === 'pinned' ? 'selected' : '' }}>Pinned Only</option>
+                    <option value="admin" {{ $filter === 'admin' ? 'selected' : '' }}>Admin Comments</option>
+                    <option value="creator" {{ $filter === 'creator' ? 'selected' : '' }}>Creator Comments</option>
+                    <option value="edited" {{ $filter === 'edited' ? 'selected' : '' }}>Edited Comments</option>
+                </select>
+            </div>
+            
+            <!-- Actions -->
+            <div class="flex items-end gap-2">
+                <button 
+                    type="submit"
+                    class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200"
+                >
+                    Apply
+                </button>
+                <a 
+                    href="{{ route('comments.index', $campaign) }}"
+                    class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition duration-200"
+                >
+                    Clear
+                </a>
+            </div>
+        </form>
     </div>
 
     <!-- Campaign Summary -->
