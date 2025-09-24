@@ -48,6 +48,36 @@
                     <p class="mt-1 text-gray-900 italic">"{{ $donation->message }}"</p>
                 </div>
                 @endif
+
+                @if($donation->reward)
+                <div class="pt-3 border-t">
+                    <span class="text-gray-600">Selected Reward:</span>
+                    <div class="mt-2 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h4 class="font-semibold text-blue-900">{{ $donation->reward->title }}</h4>
+                        <p class="text-sm text-blue-700 mt-1">{{ $donation->reward->description }}</p>
+                        
+                        @if($donation->reward->items_included)
+                        <div class="mt-2">
+                            <p class="text-xs text-blue-600 font-medium">Includes:</p>
+                            <ul class="text-xs text-blue-600 ml-2 mt-1">
+                                @foreach(explode("\n", $donation->reward->items_included) as $item)
+                                <li>• {{ trim($item) }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        @endif
+                        
+                        @if($donation->reward->estimated_delivery)
+                        <div class="mt-2">
+                            <p class="text-xs text-blue-600">
+                                <span class="font-medium">Estimated delivery:</span> 
+                                {{ \Carbon\Carbon::parse($donation->reward->estimated_delivery)->format('M Y') }}
+                            </p>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
 

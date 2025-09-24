@@ -107,6 +107,12 @@
                                 Edit Campaign (Admin)
                             </a>
                         @endif
+                        @if(auth()->user()->role === 'admin' || auth()->user()->id === $campaign->user_id)
+                            <a href="{{ route('rewards.create', $campaign) }}" 
+                               class="bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-6 rounded-lg transition duration-200 ml-2">
+                                Add Reward
+                            </a>
+                        @endif
                     @endauth
                 </div>
 
@@ -223,6 +229,54 @@
                     </div>
                 @endif
             @endauth
+
+            <!-- Rewards Section -->
+            @if($campaign->rewards->count() > 0)
+                <div class="border-t pt-8 mt-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">🎁 Campaign Rewards</h2>
+                        <a href="{{ route('rewards.index', $campaign) }}" 
+                           class="text-blue-600 hover:text-blue-800 font-medium">
+                            View All Rewards →
+                        </a>
+                    </div>
+                    
+                    <!-- Featured Rewards (show first 3) -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        @foreach($campaign->availableRewards()->take(3)->get() as $reward)
+                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h3 class="font-semibold text-gray-900">{{ $reward->title }}</h3>
+                                    <span class="text-lg font-bold text-blue-600">
+                                        ${{ number_format($reward->minimum_amount, 0) }}+
+                                    </span>
+                                </div>
+                                
+                                <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ Str::limit($reward->description, 80) }}</p>
+                                
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-gray-500">
+                                        {{ $reward->current_backers }} backer{{ $reward->current_backers != 1 ? 's' : '' }}
+                                    </span>
+                                    <a href="{{ route('donations.create', $campaign) }}?reward_id={{ $reward->id }}" 
+                                       class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition duration-200">
+                                        Select
+                                    </a>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                    
+                    @if($campaign->rewards->count() > 3)
+                        <div class="text-center">
+                            <a href="{{ route('rewards.index', $campaign) }}" 
+                               class="inline-flex items-center bg-gray-100 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-200 transition duration-200">
+                                View All {{ $campaign->rewards->count() }} Rewards
+                            </a>
+                        </div>
+                    @endif
+                </div>
+            @endif
 
             <!-- Comments Section -->
             <div class="border-t pt-8 mt-8">

@@ -74,7 +74,9 @@ class CampaignController extends Controller
      */
     public function show(Campaign $campaign)
     {
-        $campaign->load('user');
+        $campaign->load(['user', 'rewards' => function($query) {
+            $query->available()->ordered();
+        }]);
         return view('campaigns.show', compact('campaign'));
     }
 

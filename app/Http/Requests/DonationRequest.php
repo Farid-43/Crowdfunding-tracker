@@ -28,6 +28,7 @@ class DonationRequest extends FormRequest
             'donor_email' => 'nullable|email|max:255',
             'message' => 'nullable|string|max:1000',
             'anonymous' => 'boolean',
+            'reward_id' => 'nullable|exists:rewards,id',
         ];
 
         // For guest users, name and email are required
@@ -37,6 +38,39 @@ class DonationRequest extends FormRequest
         }
 
         return $rules;
+    }
+
+    /**
+     * Configure the validator instance.
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $rewardId = $this->input('reward_id');
+            $amount = $this->input('amount');
+            
+            if ($rewardId && $amount) {
+                $reward = \App\Models\Reward::find($rewardId);
+                
+                if ($reward) {
+                    // Check if reward belongs to the campaign
+                    $campaign = $this->route('campaign');
+                    if ($reward->campaign_id !== $campaign->id) {
+                        $validator->errors()->add('reward_id', 'The selected reward does not belong to this campaign.');
+                    }
+                    
+                    // Check if donation amount meets minimum
+                    if ($amount < $reward->minimum_amount) {
+                        $validator->errors()->add('amount', "The minimum donation amount for this reward is ${$reward->minimum_amount}.");
+                    }
+                    
+                    // Check if reward is available
+                    if (!$reward->is_available) {
+                        $validator->errors()->add('reward_id', 'The selected reward is no longer available.');
+                    }
+                }
+            }
+        });
     }
 
     /**

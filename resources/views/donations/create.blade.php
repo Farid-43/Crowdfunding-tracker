@@ -103,6 +103,94 @@
                     </div>
                 </div>
 
+                <!-- Reward Selection -->
+                @if($campaign->rewards->count() > 0)
+                <div id="reward-selection" class="bg-gray-50 rounded-lg p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Choose a reward (optional)</h3>
+                    
+                    <div class="space-y-3">
+                        <!-- No Reward Option -->
+                        <label class="reward-option relative flex items-start p-4 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+                            <input type="radio" name="reward_id" value="" class="sr-only" checked>
+                            <div class="reward-radio-button flex-shrink-0 h-4 w-4 border border-gray-300 rounded-full bg-white mt-1 mr-3"></div>
+                            <div class="flex-grow">
+                                <h4 class="text-sm font-medium text-gray-900">No reward</h4>
+                                <p class="text-sm text-gray-500">Just support the campaign</p>
+                            </div>
+                        </label>
+
+                        <!-- Reward Options -->
+                        @foreach($campaign->rewards as $reward)
+                        <label class="reward-option relative flex items-start p-4 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 @if(!$reward->is_available) opacity-50 cursor-not-allowed @endif" 
+                               data-min-amount="{{ $reward->minimum_amount }}">
+                            <input type="radio" name="reward_id" value="{{ $reward->id }}" class="sr-only" 
+                                   @if(!$reward->is_available) disabled @endif>
+                            <div class="reward-radio-button flex-shrink-0 h-4 w-4 border border-gray-300 rounded-full bg-white mt-1 mr-3"></div>
+                            <div class="flex-grow">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="text-sm font-medium text-gray-900">{{ $reward->title }}</h4>
+                                    <span class="text-sm font-bold text-blue-600">${{ number_format($reward->minimum_amount) }}+</span>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-1">{{ $reward->description }}</p>
+                                
+                                @if($reward->items_included)
+                                <div class="mt-2">
+                                    <p class="text-xs text-gray-500">Includes:</p>
+                                    <ul class="text-xs text-gray-600 ml-2">
+                                        @foreach(explode("\n", $reward->items_included) as $item)
+                                        <li>• {{ trim($item) }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                                @endif
+                                
+                                <div class="flex items-center justify-between mt-2">
+                                    @if($reward->estimated_delivery)
+                                    <span class="text-xs text-gray-500">
+                                        Estimated delivery: {{ \Carbon\Carbon::parse($reward->estimated_delivery)->format('M Y') }}
+                                    </span>
+                                    @endif
+                                    
+                                    @if($reward->limit_quantity)
+                                    <span class="text-xs text-gray-500">
+                                        {{ $reward->remaining_quantity }} of {{ $reward->limit_quantity }} left
+                                    </span>
+                                    @endif
+                                </div>
+                                
+                                @if(!$reward->is_available)
+                                <div class="mt-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        @if($reward->limit_quantity && $reward->remaining_quantity <= 0)
+                                            Sold Out
+                                        @else
+                                            Unavailable
+                                        @endif
+                                    </span>
+                                </div>
+                                @endif
+                            </div>
+                        </label>
+                        @endforeach
+                    </div>
+                    
+                    <div id="reward-warning" class="hidden mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-yellow-700">
+                                    <span id="reward-warning-text"></span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endif
+
                 <!-- Personal Information (for guests) -->
                 @guest
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -169,7 +257,11 @@
 document.addEventListener('DOMContentLoaded', function() {
     const presetButtons = document.querySelectorAll('.preset-amount');
     const amountInput = document.getElementById('amount');
+    const rewardOptions = document.querySelectorAll('.reward-option');
+    const rewardWarning = document.getElementById('reward-warning');
+    const rewardWarningText = document.getElementById('reward-warning-text');
 
+    // Handle preset amount buttons
     presetButtons.forEach(button => {
         button.addEventListener('click', function() {
             const amount = this.dataset.amount;
@@ -183,6 +275,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             this.classList.remove('bg-gray-100', 'border-gray-200');
             this.classList.add('bg-blue-100', 'border-blue-500');
+            
+            // Check reward eligibility
+            checkRewardEligibility();
         });
     });
 
@@ -192,7 +287,104 @@ document.addEventListener('DOMContentLoaded', function() {
             btn.classList.remove('bg-blue-100', 'border-blue-500');
             btn.classList.add('bg-gray-100', 'border-gray-200');
         });
+        
+        // Check reward eligibility
+        checkRewardEligibility();
     });
+
+    // Handle reward selection
+    rewardOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            const radioInput = this.querySelector('input[type="radio"]');
+            const radioButton = this.querySelector('.reward-radio-button');
+            
+            if (radioInput.disabled) return;
+            
+            // Clear all selections
+            rewardOptions.forEach(opt => {
+                const btn = opt.querySelector('.reward-radio-button');
+                btn.classList.remove('bg-blue-600', 'border-blue-600');
+                btn.classList.add('border-gray-300', 'bg-white');
+                btn.innerHTML = '';
+            });
+            
+            // Select this option
+            radioInput.checked = true;
+            radioButton.classList.remove('border-gray-300', 'bg-white');
+            radioButton.classList.add('bg-blue-600', 'border-blue-600');
+            radioButton.innerHTML = '<div class="w-2 h-2 bg-white rounded-full"></div>';
+            
+            // Check if amount meets minimum for this reward
+            const minAmount = parseFloat(this.dataset.minAmount || 0);
+            const currentAmount = parseFloat(amountInput.value || 0);
+            
+            if (minAmount > 0 && currentAmount < minAmount) {
+                showRewardWarning(`To select this reward, you need to donate at least $${minAmount}.`);
+                // Suggest the minimum amount
+                amountInput.value = minAmount;
+                // Clear preset selections
+                presetButtons.forEach(btn => {
+                    btn.classList.remove('bg-blue-100', 'border-blue-500');
+                    btn.classList.add('bg-gray-100', 'border-gray-200');
+                });
+            } else {
+                hideRewardWarning();
+            }
+        });
+    });
+
+    function checkRewardEligibility() {
+        const currentAmount = parseFloat(amountInput.value || 0);
+        const selectedReward = document.querySelector('input[name="reward_id"]:checked');
+        
+        if (selectedReward && selectedReward.value) {
+            const selectedOption = selectedReward.closest('.reward-option');
+            const minAmount = parseFloat(selectedOption.dataset.minAmount || 0);
+            
+            if (currentAmount < minAmount) {
+                showRewardWarning(`Your current donation amount ($${currentAmount}) is below the minimum required for this reward ($${minAmount}).`);
+            } else {
+                hideRewardWarning();
+            }
+        } else {
+            hideRewardWarning();
+        }
+        
+        // Update reward availability based on amount
+        rewardOptions.forEach(option => {
+            const minAmount = parseFloat(option.dataset.minAmount || 0);
+            const radioInput = option.querySelector('input[type="radio"]');
+            
+            if (radioInput.value && currentAmount > 0 && currentAmount < minAmount) {
+                option.classList.add('opacity-50');
+                option.style.pointerEvents = 'none';
+            } else if (!radioInput.disabled) {
+                option.classList.remove('opacity-50');
+                option.style.pointerEvents = 'auto';
+            }
+        });
+    }
+
+    function showRewardWarning(message) {
+        rewardWarningText.textContent = message;
+        rewardWarning.classList.remove('hidden');
+    }
+
+    function hideRewardWarning() {
+        rewardWarning.classList.add('hidden');
+    }
+
+    // Initialize reward radio buttons
+    const checkedReward = document.querySelector('input[name="reward_id"]:checked');
+    if (checkedReward) {
+        const radioButton = checkedReward.closest('.reward-option').querySelector('.reward-radio-button');
+        radioButton.classList.remove('border-gray-300', 'bg-white');
+        radioButton.classList.add('bg-blue-600', 'border-blue-600');
+        radioButton.innerHTML = '<div class="w-2 h-2 bg-white rounded-full"></div>';
+    }
+    
+    // Initial check
+    checkRewardEligibility();
 });
 </script>
 @endsection

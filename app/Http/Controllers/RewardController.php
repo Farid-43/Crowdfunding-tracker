@@ -46,21 +46,23 @@ class RewardController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'minimum_amount' => 'required|numeric|min:1',
-            'maximum_backers' => 'nullable|integer|min:1',
+            'items_included' => 'nullable|string',
             'estimated_delivery' => 'nullable|date|after:today',
-            'included_items' => 'nullable|array',
-            'included_items.*' => 'string|max:255',
-            'shipping_info' => 'nullable|string|max:255',
+            'shipping_required' => 'boolean',
+            'limit_quantity' => 'nullable|integer|min:1',
         ]);
 
-        // Convert included_items array to proper format
-        if (isset($validated['included_items'])) {
-            $validated['included_items'] = array_filter($validated['included_items']);
+        // Handle the limit_quantity based on checkbox
+        if (!$request->has('limit_quantity_checkbox') || !$request->input('limit_quantity_checkbox')) {
+            $validated['limit_quantity'] = null;
         }
+
+        // Set shipping_required default
+        $validated['shipping_required'] = $request->boolean('shipping_required');
 
         $reward = $campaign->rewards()->create($validated);
 
-        return redirect()->route('rewards.index', $campaign)
+        return redirect()->route('campaigns.show', $campaign)
                         ->with('success', 'Reward created successfully!');
     }
 

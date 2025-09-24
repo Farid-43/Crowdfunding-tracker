@@ -52,6 +52,7 @@ class DonationController extends Controller
                 'donor_email' => $validated['donor_email'] ?? null,
                 'message' => $validated['message'] ?? null,
                 'anonymous' => $validated['anonymous'] ?? false,
+                'reward_id' => $validated['reward_id'] ?? null,
                 'status' => 'completed', // Prototype - auto-complete
                 'payment_method' => 'prototype',
                 'transaction_id' => 'PROTO_' . uniqid(),
@@ -60,6 +61,14 @@ class DonationController extends Controller
             // Update campaign totals
             $campaign->increment('current_amount', $donation->amount);
             $campaign->increment('backers_count');
+
+            // Update reward quantity if a reward was selected
+            if ($validated['reward_id']) {
+                $reward = \App\Models\Reward::find($validated['reward_id']);
+                if ($reward && $reward->limit_quantity) {
+                    $reward->increment('claimed_quantity');
+                }
+            }
 
             DB::commit();
 
@@ -87,6 +96,9 @@ class DonationController extends Controller
         if ($donation->campaign_id !== $campaign->id) {
             abort(404);
         }
+
+        // Load the reward relationship if it exists
+        $donation->load('reward');
 
         return view('donations.thankyou', compact('campaign', 'donation'));
     }
