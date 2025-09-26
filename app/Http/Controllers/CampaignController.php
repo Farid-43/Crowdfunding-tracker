@@ -11,16 +11,68 @@ class CampaignController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $campaigns = Campaign::with('user')
+        $query = Campaign::with(['user', 'categories'])
             ->active()
-            ->notExpired()
-            ->orderBy('featured', 'desc')
-            ->orderBy('created_at', 'desc')
-            ->paginate(12);
+            ->notExpired();
 
-        return view('campaigns.index', compact('campaigns'));
+        // Text search across title, description, and short_description
+        if ($request->filled('search')) {
+            $searchTerm = $request->get('search');
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('title', 'LIKE', "%{$searchTerm}%")
+                  ->orWhere('description', 'LIKE', "%{$searchTerm}%")
+                  ->orWhere('short_description', 'LIKE', "%{$searchTerm}%");
+            });
+        }
+
+        // Category filtering
+        if ($request->filled('categories')) {
+            $categoryIds = $request->get('categories');
+            if (is_array($categoryIds) && !empty($categoryIds)) {
+                $query->whereHas('categories', function($q) use ($categoryIds) {
+                    $q->whereIn('categories.id', $categoryIds);
+                });
+            }
+        }
+
+        // Sorting
+        $sortBy = $request->get('sort', 'featured_and_date');
+        switch ($sortBy) {
+            case 'newest':
+                $query->orderBy('created_at', 'desc');
+                break;
+            case 'oldest':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'goal_high':
+                $query->orderBy('goal_amount', 'desc');
+                break;
+            case 'goal_low':
+                $query->orderBy('goal_amount', 'asc');
+                break;
+            case 'ending_soon':
+                $query->orderBy('deadline', 'asc');
+                break;
+            default:
+                $query->orderBy('featured', 'desc')
+                      ->orderBy('created_at', 'desc');
+        }
+
+        $campaigns = $query->paginate(12)->withQueryString();
+
+        // Get all active categories for the filter dropdown
+        $categories = \App\Models\Category::active()->ordered()->get();
+
+        // Get filter/search parameters for the view
+        $filters = [
+            'search' => $request->get('search'),
+            'categories' => $request->get('categories', []),
+            'sort' => $sortBy
+        ];
+
+        return view('campaigns.index', compact('campaigns', 'categories', 'filters'));
     }
 
     /**
@@ -28,7 +80,8 @@ class CampaignController extends Controller
      */
     public function create()
     {
-        return view('campaigns.create');
+        $categories = \App\Models\Category::active()->ordered()->get();
+        return view('campaigns.create', compact('categories'));
     }
 
     /**
@@ -46,6 +99,8 @@ class CampaignController extends Controller
             'goal_amount' => 'required|numeric|min:100|max:1000000',
             'deadline' => 'required|date|after:today',
             'category' => 'required|string|in:Technology,Art,Music,Film,Games,Publishing,Fashion,Food,Health,Education',
+            'categories' => 'nullable|array|min:1|max:3',
+            'categories.*' => 'exists:categories,id',
             'image_url' => 'nullable|url|max:2048' // URL validation
         ]);
 
@@ -63,6 +118,11 @@ class CampaignController extends Controller
             'status' => 'active'
         ]);
 
+        // Attach selected categories
+        if (!empty($validated['categories'])) {
+            $campaign->categories()->attach($validated['categories']);
+        }
+
         \Log::info('Campaign created successfully', ['campaign_id' => $campaign->id]);
 
         return redirect()->route('campaigns.show', $campaign)
@@ -74,7 +134,7 @@ class CampaignController extends Controller
      */
     public function show(Campaign $campaign)
     {
-        $campaign->load(['user', 'rewards' => function($query) {
+        $campaign->load(['user', 'categories', 'rewards' => function($query) {
             $query->available()->ordered();
         }]);
         return view('campaigns.show', compact('campaign'));
@@ -90,7 +150,8 @@ class CampaignController extends Controller
             abort(403, 'Unauthorized action. Only administrators can edit campaigns.');
         }
 
-        return view('campaigns.edit', compact('campaign'));
+        $categories = \App\Models\Category::active()->ordered()->get();
+        return view('campaigns.edit', compact('campaign', 'categories'));
     }
 
     /**
@@ -110,6 +171,8 @@ class CampaignController extends Controller
             'goal_amount' => 'required|numeric|min:100|max:1000000',
             'deadline' => 'required|date|after:today',
             'category' => 'required|string|in:Technology,Art,Music,Film,Games,Publishing,Fashion,Food,Health,Education',
+            'categories' => 'nullable|array|min:1|max:3',
+            'categories.*' => 'exists:categories,id',
             'image_url' => 'nullable|url|max:2048'
         ]);
 
@@ -122,6 +185,13 @@ class CampaignController extends Controller
             'category' => $validated['category'],
             'image_path' => $validated['image_url'] ?? $campaign->image_path,
         ]);
+
+        // Sync selected categories (remove old, add new)
+        if (isset($validated['categories'])) {
+            $campaign->categories()->sync($validated['categories']);
+        } else {
+            $campaign->categories()->detach();
+        }
 
         return redirect()->route('campaigns.show', $campaign)
                         ->with('success', 'Campaign updated successfully!');

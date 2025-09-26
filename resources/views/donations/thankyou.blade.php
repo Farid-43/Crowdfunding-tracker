@@ -136,7 +136,7 @@
             </a>
             
             <a href="{{ route('campaigns.index') }}" 
-               class="bg-gray-600 text-white px-6 py-3 rounded-md text-center hover:bg-gray-700 transition duration-200">
+               class="bg-indigo-600 text-white px-6 py-3 rounded-md text-center hover:bg-indigo-700 transition duration-200">
                 Browse More Campaigns
             </a>
 

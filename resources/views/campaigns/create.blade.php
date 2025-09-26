@@ -176,6 +176,48 @@
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
+
+                <!-- New Categories Selection -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3">
+                        Additional Categories (Optional)
+                    </label>
+                    <p class="text-gray-500 text-sm mb-3">Select up to 3 categories that best describe your campaign</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        @foreach($categories as $category)
+                        <label class="relative flex items-start p-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg cursor-pointer transition duration-200">
+                            <input type="checkbox" 
+                                   name="categories[]" 
+                                   value="{{ $category->id }}" 
+                                   class="category-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-1"
+                                   {{ in_array($category->id, old('categories', [])) ? 'checked' : '' }}>
+                            <div class="ml-3 flex-grow">
+                                <div class="flex items-center">
+                                    @if($category->icon)
+                                    <i class="{{ $category->icon }} mr-2" style="color: {{ $category->color }}"></i>
+                                    @endif
+                                    <span class="text-sm font-medium text-gray-900">{{ $category->name }}</span>
+                                </div>
+                                @if($category->description)
+                                <p class="text-xs text-gray-500 mt-1">{{ $category->description }}</p>
+                                @endif
+                            </div>
+                        </label>
+                        @endforeach
+                    </div>
+                    
+                    <div id="category-limit-warning" class="hidden mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-yellow-700 text-sm">
+                        You can select a maximum of 3 categories.
+                    </div>
+                    
+                    @error('categories')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                    @error('categories.*')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
 
             <!-- Deadline -->
@@ -213,6 +255,49 @@
 </div>
 
 <script>
+// Category limit enforcement
+document.addEventListener('DOMContentLoaded', function() {
+    const categoryCheckboxes = document.querySelectorAll('.category-checkbox');
+    const warningDiv = document.getElementById('category-limit-warning');
+    const maxCategories = 3;
+
+    categoryCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const checkedCount = document.querySelectorAll('.category-checkbox:checked').length;
+            
+            if (checkedCount >= maxCategories) {
+                // Disable unchecked boxes
+                categoryCheckboxes.forEach(cb => {
+                    if (!cb.checked) {
+                        cb.disabled = true;
+                        cb.closest('label').classList.add('opacity-50', 'cursor-not-allowed');
+                    }
+                });
+                warningDiv.classList.remove('hidden');
+            } else {
+                // Enable all boxes
+                categoryCheckboxes.forEach(cb => {
+                    cb.disabled = false;
+                    cb.closest('label').classList.remove('opacity-50', 'cursor-not-allowed');
+                });
+                warningDiv.classList.add('hidden');
+            }
+        });
+    });
+    
+    // Initial check
+    const initialCheckedCount = document.querySelectorAll('.category-checkbox:checked').length;
+    if (initialCheckedCount >= maxCategories) {
+        categoryCheckboxes.forEach(cb => {
+            if (!cb.checked) {
+                cb.disabled = true;
+                cb.closest('label').classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        });
+        warningDiv.classList.remove('hidden');
+    }
+});
+
 function previewImageUrl(url) {
     if (url && url.trim() !== '') {
         const img = document.getElementById('preview-img');

@@ -46,11 +46,26 @@
             <!-- Title and Creator -->
             <div class="mb-6">
                 <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ $campaign->title }}</h1>
-                <p class="text-gray-600">
+                <p class="text-gray-600 mb-3">
                     by <span class="font-semibold text-blue-600">{{ $campaign->user->name }}</span>
                     <span class="text-gray-400">•</span>
                     <span class="text-sm">{{ $campaign->category }}</span>
                 </p>
+                
+                <!-- Categories -->
+                @if($campaign->categories->count() > 0)
+                <div class="flex flex-wrap gap-2">
+                    @foreach($campaign->categories as $category)
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border"
+                          style="background-color: {{ $category->color }}20; border-color: {{ $category->color }}; color: {{ $category->color }};">
+                        @if($category->icon)
+                        <i class="{{ $category->icon }} mr-1"></i>
+                        @endif
+                        {{ $category->name }}
+                    </span>
+                    @endforeach
+                </div>
+                @endif
             </div>
 
             <!-- Progress Section -->

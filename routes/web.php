@@ -14,6 +14,14 @@ Route::get('/', function () {
     return view('home');
 })->name('home');
 
+// Test route for categories
+Route::get('/test-categories', function () {
+    $categories = \App\Models\Category::active()->ordered()->get();
+    $campaignsWithCategories = \App\Models\Campaign::with('categories')->take(5)->get();
+    
+    return view('test-categories', compact('categories', 'campaignsWithCategories'));
+})->name('test.categories');
+
 // Public campaign routes (viewing)
 Route::resource('campaigns', CampaignController::class)->only(['index', 'show']);
 

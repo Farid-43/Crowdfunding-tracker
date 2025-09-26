@@ -87,6 +87,23 @@ class Campaign extends Model
         return $this->rewards()->available()->ordered();
     }
 
+    /**
+     * Campaign belongs to many categories (many-to-many relationship)
+     */
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'campaign_category')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Get active categories for this campaign
+     */
+    public function activeCategories()
+    {
+        return $this->categories()->active()->ordered();
+    }
+
     // Helper methods
     public function getProgressPercentageAttribute()
     {

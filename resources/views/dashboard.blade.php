@@ -174,7 +174,7 @@
 
                 </a>                </a>
 
-                <a href="{{ route('campaigns.index') }}" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition duration-200 text-center">                <a href="{{ route('campaigns.index') }}" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition duration-200 text-center">
+                <a href="{{ route('campaigns.index') }}" class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition duration-200 text-center">                <a href="{{ route('campaigns.index') }}" class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition duration-200 text-center">
 
                     Browse Campaigns                    Browse Campaigns
 
