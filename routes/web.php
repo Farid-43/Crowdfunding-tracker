@@ -22,8 +22,10 @@ Route::get('/test-categories', function () {
     return view('test-categories', compact('categories', 'campaignsWithCategories'));
 })->name('test.categories');
 
-// Public campaign routes (viewing)
-Route::resource('campaigns', CampaignController::class)->only(['index', 'show']);
+// Public campaign routes (viewing) - temporarily commented for debugging
+// Route::resource('campaigns', CampaignController::class)->only(['index', 'show']);
+Route::get('/campaigns', [CampaignController::class, 'index'])->name('campaigns.index');
+Route::get('/campaigns/{campaign}', [CampaignController::class, 'show'])->name('campaigns.show');
 
 // Donation routes (both auth and guest can donate)
 Route::get('/campaigns/{campaign}/donate', [DonationController::class, 'create'])->name('donations.create');
@@ -54,7 +56,19 @@ Route::middleware('auth')->group(function () {
     Route::delete('/campaigns/{campaign}/rewards/{reward}', [RewardController::class, 'destroy'])->name('rewards.destroy');
 });
 
-// Campaign creation and editing requires authentication (must come before resource routes)
+// Public route to guide users to create campaigns
+Route::get('/start-campaign', function () {
+    if (auth()->check()) {
+        return redirect()->route('campaigns.create');
+    }
+    
+    return view('campaigns.start', [
+        'loginUrl' => route('login'),
+        'registerUrl' => route('register')
+    ]);
+})->name('campaigns.start');
+
+// Campaign creation and editing requires authentication
 Route::middleware('auth')->group(function () {
     Route::get('/campaigns/create', [CampaignController::class, 'create'])->name('campaigns.create');
     Route::post('/campaigns', [CampaignController::class, 'store'])->name('campaigns.store');
@@ -78,16 +92,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/comments', [AdminController::class, 'comments'])->name('admin.comments');
 });
 
-// Campaign resource routes (public routes)
-Route::resource('campaigns', CampaignController::class)->only(['index', 'show']);
-
 // Dashboard route - redirect admins to admin dashboard, users to user dashboard
-Route::get('/dashboard', function () {
-    if (auth()->user()->role === 'admin') {
-        return redirect()->route('admin.campaigns');
-    }
-    return view('dashboard');
-})->middleware('auth')->name('dashboard');
+Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
+    ->middleware('auth')->name('dashboard');
 
 // Logout page
 Route::get('/logout-page', function () {
@@ -172,6 +179,14 @@ Route::get('/test-donations', function () {
     
     return $html;
 })->name('test.donations');
+
+// Campaign creation and editing requires authentication (must come before resource routes)
+Route::middleware('auth')->group(function () {
+    Route::get('/campaigns/create', [CampaignController::class, 'create'])->name('campaigns.create');
+    Route::post('/campaigns', [CampaignController::class, 'store'])->name('campaigns.store');
+    Route::get('/campaigns/{campaign}/edit', [CampaignController::class, 'edit'])->name('campaigns.edit');
+    Route::put('/campaigns/{campaign}', [CampaignController::class, 'update'])->name('campaigns.update');
+});
 
 // Test Campaign models and relationships
 Route::get('/test-campaigns', function () {

@@ -19,7 +19,7 @@
                    class="bg-white text-indigo-600 hover:bg-gray-100 px-8 py-3 rounded-lg font-semibold text-lg transition duration-300">
                     Explore Campaigns
                 </a>
-                <a href="#" 
+                <a href="{{ route('campaigns.start') }}" 
                    class="border-2 border-white text-white hover:bg-white hover:text-indigo-600 px-8 py-3 rounded-lg font-semibold text-lg transition duration-300">
                     Start a Campaign
                 </a>
