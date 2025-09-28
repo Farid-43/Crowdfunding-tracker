@@ -10,6 +10,40 @@ use Illuminate\Http\Request;
 class AdminController extends Controller
 {
     /**
+     * Display the main admin dashboard
+     */
+    public function dashboard()
+    {
+        // Get key statistics
+        $stats = [
+            'total_users' => User::count(),
+            'total_campaigns' => Campaign::count(),
+            'active_campaigns' => Campaign::where('status', 'active')->count(),
+            'completed_campaigns' => Campaign::where('status', 'completed')->count(),
+            'total_raised' => Campaign::sum('current_amount'),
+            'total_goal' => Campaign::sum('goal_amount'),
+        ];
+
+        // Get recent campaigns
+        $recentCampaigns = Campaign::with('user')
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        // Get recent users
+        $recentUsers = User::orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        // Get top campaigns by amount raised
+        $topCampaigns = Campaign::orderBy('current_amount', 'desc')
+            ->take(5)
+            ->get();
+
+        return view('admin.dashboard', compact('stats', 'recentCampaigns', 'recentUsers', 'topCampaigns'));
+    }
+
+    /**
      * Display all campaigns for admin management
      */
     public function campaigns()

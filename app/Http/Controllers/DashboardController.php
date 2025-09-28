@@ -14,6 +14,11 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         
+        // Redirect admins to admin dashboard
+        if ($user->isAdmin()) {
+            return redirect()->route('admin.dashboard');
+        }
+        
         // Get campaigns with basic sorting
         $campaigns = $user->campaigns()->with(['categories', 'donations'])
             ->orderBy('created_at', 'desc')

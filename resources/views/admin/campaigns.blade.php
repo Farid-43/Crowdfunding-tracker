@@ -1,11 +1,11 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
 <div class="min-h-screen bg-gray-50">
-    <!-- Admin Sidebar -->
-    <div class="flex">
+    <!-- Admin Layout -->
+    <div class="flex h-screen">
         <!-- Sidebar -->
-        <div class="w-64 bg-slate-800 text-white min-h-screen">
+        <div class="w-64 bg-slate-800 text-white flex-shrink-0">
             <div class="p-6">
                 <div class="flex items-center mb-8">
                     <div class="bg-blue-600 p-2 rounded-lg mr-3">
@@ -94,12 +94,13 @@
         </div>
 
         <!-- Main Content -->
-        <div class="flex-1 p-8">
-            <!-- Header -->
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-900">Campaign Management</h1>
-                <p class="text-gray-600 mt-2">Manage all campaigns on the platform</p>
-            </div>
+        <div class="flex-1 overflow-y-auto">
+            <div class="p-8">
+                <!-- Header -->
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900">Campaign Management</h1>
+                    <p class="text-gray-600 mt-2">Manage all campaigns on the platform</p>
+                </div>
 
             <!-- Campaigns Table -->
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
@@ -181,6 +182,7 @@
                 <div class="px-6 py-4 border-t border-gray-200">
                     {{ $campaigns->links() }}
                 </div>
+            </div>
             </div>
         </div>
     </div>

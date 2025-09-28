@@ -1,11 +1,12 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
-<div class="min-h-screen bg-slate-100">
-    <div class="flex">
+<div class="min-h-screen bg-gray-50">
+    <!-- Admin Layout -->
+    <div class="flex h-screen">
         <!-- Sidebar -->
-        <div class="w-64 bg-slate-800 min-h-screen p-6">
-            <div class="text-white">
+        <div class="w-64 bg-slate-800 text-white flex-shrink-0">
+            <div class="p-6">
                 <div class="flex items-center mb-8">
                     <div class="bg-blue-600 p-2 rounded-lg mr-3">
                         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
@@ -93,7 +94,8 @@
         </div>
 
         <!-- Main Content -->
-        <div class="flex-1 p-8">
+        <div class="flex-1 overflow-y-auto">
+            <div class="p-8">
             <div class="max-w-7xl mx-auto">
                 <!-- Page Header -->
                 <div class="mb-8">

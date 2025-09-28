@@ -83,6 +83,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
 // Admin routes
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/campaigns', [AdminController::class, 'campaigns'])->name('admin.campaigns');
     Route::get('/users', [AdminController::class, 'users'])->name('admin.users');
     Route::get('/analytics', [AdminController::class, 'analytics'])->name('admin.analytics');
