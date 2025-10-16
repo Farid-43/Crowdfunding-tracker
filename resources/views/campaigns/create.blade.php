@@ -57,7 +57,7 @@
                        id="image_url" 
                        name="image_url" 
                        value="{{ old('image_url') }}"
-                       placeholder="https://example.com/your-campaign-image.jpg"
+                       placeholder="https://images.unsplash.com/photo-1533090161767-e6ffed986c88?w=800"
                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('image_url') border-red-500 @enderror"
                        onchange="previewImageUrl(this.value)">
                 
@@ -74,7 +74,12 @@
                 @error('image_url')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
-                <p class="text-gray-500 text-sm mt-1">Add a link to an image to make your campaign stand out (optional)</p>
+                <p class="text-gray-500 text-sm mt-1">
+                    Add a link to an image to make your campaign stand out. Try 
+                    <a href="https://unsplash.com" target="_blank" class="text-blue-600 hover:underline">Unsplash</a> for free images.
+                    <br>
+                    <span class="text-xs">Example: https://images.unsplash.com/photo-1533090161767-e6ffed986c88?w=800</span>
+                </p>
             </div>
 
             <!-- Title -->
@@ -154,12 +159,11 @@
                 <!-- Category -->
                 <div>
                     <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
-                        Category *
+                        Legacy Category (Optional)
                     </label>
                     <select id="category" 
                             name="category" 
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('category') border-red-500 @enderror"
-                            required>
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('category') border-red-500 @enderror">
                         <option value="">Select a category</option>
                         <option value="Technology" {{ old('category') == 'Technology' ? 'selected' : '' }}>Technology</option>
                         <option value="Art" {{ old('category') == 'Art' ? 'selected' : '' }}>Art</option>
@@ -180,7 +184,7 @@
                 <!-- New Categories Selection -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-3">
-                        Additional Categories (Optional)
+                        Categories * (Required)
                     </label>
                     <p class="text-gray-500 text-sm mb-3">Select up to 3 categories that best describe your campaign</p>
                     
@@ -255,11 +259,31 @@
 </div>
 
 <script>
-// Category limit enforcement
+// Category limit enforcement and required validation
 document.addEventListener('DOMContentLoaded', function() {
     const categoryCheckboxes = document.querySelectorAll('.category-checkbox');
     const warningDiv = document.getElementById('category-limit-warning');
+    const form = document.querySelector('form');
     const maxCategories = 3;
+
+    // Form submission validation
+    form.addEventListener('submit', function(e) {
+        const checkedCount = document.querySelectorAll('.category-checkbox:checked').length;
+        
+        if (checkedCount === 0) {
+            e.preventDefault();
+            alert('Please select at least one category for your campaign.');
+            // Scroll to categories section
+            document.querySelector('.category-checkbox').closest('div').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return false;
+        }
+        
+        if (checkedCount > maxCategories) {
+            e.preventDefault();
+            alert(`Please select maximum ${maxCategories} categories.`);
+            return false;
+        }
+    });
 
     categoryCheckboxes.forEach(checkbox => {
         checkbox.addEventListener('change', function() {

@@ -33,19 +33,19 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
             <div>
-                <div class="text-3xl font-bold text-indigo-600 mb-2">1,234</div>
-                <div class="text-gray-600">Projects Funded</div>
+                <div class="text-3xl font-bold text-indigo-600 mb-2">{{ number_format($stats['total_campaigns']) }}</div>
+                <div class="text-gray-600">Projects Created</div>
             </div>
             <div>
-                <div class="text-3xl font-bold text-green-600 mb-2">$2.5M</div>
-                <div class="text-gray-600">Raised</div>
+                <div class="text-3xl font-bold text-green-600 mb-2">${{ number_format($stats['total_raised'], 0) }}</div>
+                <div class="text-gray-600">Total Raised</div>
             </div>
             <div>
-                <div class="text-3xl font-bold text-purple-600 mb-2">45,678</div>
+                <div class="text-3xl font-bold text-purple-600 mb-2">{{ number_format($stats['total_backers']) }}</div>
                 <div class="text-gray-600">Backers</div>
             </div>
             <div>
-                <div class="text-3xl font-bold text-orange-600 mb-2">89%</div>
+                <div class="text-3xl font-bold text-orange-600 mb-2">{{ $stats['success_rate'] }}%</div>
                 <div class="text-gray-600">Success Rate</div>
             </div>
         </div>
@@ -62,101 +62,67 @@
 
         <!-- Campaign Cards Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Sample Campaign Card 1 -->
-            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300">
-                <div class="h-48 bg-gradient-to-r from-blue-400 to-blue-600"></div>
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">Technology</span>
-                        <span class="text-sm text-gray-500">2 days left</span>
+            @forelse($featuredCampaigns as $campaign)
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300">
+                    <!-- Campaign Image -->
+                    <div class="h-48 relative overflow-hidden">
+                        @if($campaign->image_path)
+                            <img src="{{ $campaign->image_path }}" 
+                                 alt="{{ $campaign->title }}" 
+                                 class="w-full h-full object-cover"
+                                 onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1533090161767-e6ffed986c88?w=800&h=600&fit=crop';">
+                        @else
+                            <div class="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+                                <span class="text-white text-2xl font-bold">{{ $campaign->category }}</span>
+                            </div>
+                        @endif
+                        @if($campaign->featured)
+                            <div class="absolute top-2 right-2">
+                                <span class="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-1 rounded-full">
+                                    ⭐ Featured
+                                </span>
+                            </div>
+                        @endif
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Smart Home Assistant</h3>
-                    <p class="text-gray-600 text-sm mb-4">Revolutionary AI-powered home automation system that learns your preferences.</p>
                     
-                    <!-- Progress Bar -->
-                    <div class="mb-4">
-                        <div class="flex justify-between text-sm text-gray-600 mb-1">
-                            <span>$85,000 raised</span>
-                            <span>85% funded</span>
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">{{ $campaign->category }}</span>
+                            <span class="text-sm text-gray-500">{{ $campaign->days_remaining }} days left</span>
                         </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-blue-600 h-2 rounded-full" style="width: 85%"></div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2 line-clamp-2">{{ $campaign->title }}</h3>
+                        <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ $campaign->short_description }}</p>
+                        
+                        <!-- Progress Bar -->
+                        <div class="mb-4">
+                            <div class="flex justify-between text-sm text-gray-600 mb-1">
+                                <span>${{ number_format($campaign->current_amount, 0) }} raised</span>
+                                <span>{{ $campaign->progress_percentage }}% funded</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                                     style="width: {{ min($campaign->progress_percentage, 100) }}%"></div>
+                            </div>
+                            <div class="text-sm text-gray-600 mt-1">Goal: ${{ number_format($campaign->goal_amount, 0) }}</div>
                         </div>
-                        <div class="text-sm text-gray-600 mt-1">Goal: $100,000</div>
-                    </div>
-                    
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-500">234 backers</span>
-                        <a href="#" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium">
-                            Back This Project
-                        </a>
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-500">{{ $campaign->backers_count }} backers</span>
+                            <a href="{{ route('campaigns.show', $campaign) }}" 
+                               class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                                View Campaign
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Sample Campaign Card 2 -->
-            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300">
-                <div class="h-48 bg-gradient-to-r from-green-400 to-green-600"></div>
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">Health</span>
-                        <span class="text-sm text-gray-500">15 days left</span>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Medical Clinic for Remote Area</h3>
-                    <p class="text-gray-600 text-sm mb-4">Building healthcare infrastructure for underserved communities.</p>
-                    
-                    <!-- Progress Bar -->
-                    <div class="mb-4">
-                        <div class="flex justify-between text-sm text-gray-600 mb-1">
-                            <span>$45,000 raised</span>
-                            <span>60% funded</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-green-600 h-2 rounded-full" style="width: 60%"></div>
-                        </div>
-                        <div class="text-sm text-gray-600 mt-1">Goal: $75,000</div>
-                    </div>
-                    
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-500">156 backers</span>
-                        <a href="#" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium">
-                            Back This Project
-                        </a>
-                    </div>
+            @empty
+                <div class="col-span-3 text-center py-12">
+                    <p class="text-gray-500 text-lg">No campaigns available yet.</p>
+                    <a href="{{ route('campaigns.create') }}" class="mt-4 inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold">
+                        Create First Campaign
+                    </a>
                 </div>
-            </div>
-
-            <!-- Sample Campaign Card 3 -->
-            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300">
-                <div class="h-48 bg-gradient-to-r from-purple-400 to-purple-600"></div>
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="bg-purple-100 text-purple-800 text-xs font-semibold px-2.5 py-0.5 rounded">Education</span>
-                        <span class="text-sm text-gray-500">7 days left</span>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Online Learning Platform</h3>
-                    <p class="text-gray-600 text-sm mb-4">Interactive education platform for students in developing countries.</p>
-                    
-                    <!-- Progress Bar -->
-                    <div class="mb-4">
-                        <div class="flex justify-between text-sm text-gray-600 mb-1">
-                            <span>$92,000 raised</span>
-                            <span>92% funded</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-purple-600 h-2 rounded-full" style="width: 92%"></div>
-                        </div>
-                        <div class="text-sm text-gray-600 mt-1">Goal: $100,000</div>
-                    </div>
-                    
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-500">478 backers</span>
-                        <a href="#" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium">
-                            Back This Project
-                        </a>
-                    </div>
-                </div>
-            </div>
+            @endforelse
         </div>
 
         <div class="text-center mt-12">

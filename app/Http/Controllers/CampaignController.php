@@ -98,8 +98,8 @@ class CampaignController extends Controller
             'description' => 'required|string|min:100',
             'goal_amount' => 'required|numeric|min:100|max:1000000',
             'deadline' => 'required|date|after:today',
-            'category' => 'required|string|in:Technology,Art,Music,Film,Games,Publishing,Fashion,Food,Health,Education',
-            'categories' => 'nullable|array|min:1|max:3',
+            'category' => 'nullable|string|in:Technology,Art,Music,Film,Games,Publishing,Fashion,Food,Health,Education',
+            'categories' => 'required|array|min:1|max:3',
             'categories.*' => 'exists:categories,id',
             'image_url' => 'nullable|url|max:2048' // URL validation
         ]);
@@ -113,7 +113,7 @@ class CampaignController extends Controller
             'description' => $validated['description'],
             'goal_amount' => $validated['goal_amount'],
             'deadline' => $validated['deadline'],
-            'category' => $validated['category'],
+            'category' => $validated['category'] ?? null,
             'image_path' => $validated['image_url'] ?? null, // Store URL in image_path field
             'status' => 'active'
         ]);

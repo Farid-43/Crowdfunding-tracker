@@ -9,10 +9,12 @@
                 <img src="{{ $campaign->image_path }}" 
                      alt="{{ $campaign->title }}" 
                      class="w-full h-full object-cover"
-                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                <span class="text-white text-2xl font-bold hidden items-center justify-center w-full h-full absolute inset-0">{{ $campaign->category }}</span>
+                     onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1533090161767-e6ffed986c88?w=1200&h=600&fit=crop';">
             @else
-                <span class="text-white text-2xl font-bold">{{ $campaign->category }}</span>
+                <img src="https://images.unsplash.com/photo-1533090161767-e6ffed986c88?w=1200&h=600&fit=crop" 
+                     alt="{{ $campaign->title }}" 
+                     class="w-full h-full object-cover opacity-50">
+                <span class="text-white text-2xl font-bold absolute">{{ $campaign->category }}</span>
             @endif
             
             <!-- Featured Badge -->
@@ -103,10 +105,16 @@
                 <!-- Action Buttons -->
                 <div class="mt-6 flex gap-4">
                     @if(!$campaign->is_expired && $campaign->status === 'active')
-                        <!-- Donate Button for Active Campaigns -->
+                        <!-- Quick Donate Button (AJAX) -->
+                        <button onclick="openDonateModal()" 
+                                class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200 text-center">
+                            💚 Quick Donate
+                        </button>
+                        
+                        <!-- Full Donate Page Link -->
                         <a href="{{ route('donations.create', $campaign) }}" 
-                           class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200 text-center">
-                            💚 Donate Now
+                           class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition duration-200 text-center">
+                            Full Form
                         </a>
                     @else
                         <!-- Campaign Ended -->
@@ -560,6 +568,220 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => {
                 element.classList.remove('ring-2', 'ring-blue-500', 'ring-opacity-50');
             }, 3000);
+        }
+    }
+});
+</script>
+
+<!-- AJAX Donation Modal -->
+<div id="donationModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Quick Donate</h3>
+                <button id="closeModal" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="donationForm" class="space-y-4">
+                @csrf
+                <div>
+                    <label for="amount" class="block text-sm font-medium text-gray-700">Amount ($)</label>
+                    <input type="number" id="amount" name="amount" min="1" step="0.01" required
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                
+                <div>
+                    <label for="donor_name" class="block text-sm font-medium text-gray-700">Your Name</label>
+                    <input type="text" id="donor_name" name="donor_name" required
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                           value="{{ auth()->user()->name ?? '' }}">
+                </div>
+                
+                <div>
+                    <label for="donor_email" class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" id="donor_email" name="donor_email" required
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                           value="{{ auth()->user()->email ?? '' }}">
+                </div>
+                
+                <div class="form-check">
+                    <input type="checkbox" id="anonymous" name="anonymous" value="1"
+                           class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    <label for="anonymous" class="ml-2 text-sm text-gray-700">Make this donation anonymous</label>
+                </div>
+                
+                @if($campaign->rewards->isNotEmpty())
+                <div>
+                    <label for="reward_id" class="block text-sm font-medium text-gray-700">Select Reward (Optional)</label>
+                    <select id="reward_id" name="reward_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">No reward</option>
+                        @foreach($campaign->rewards as $reward)
+                            <option value="{{ $reward->id }}" data-amount="{{ $reward->minimum_amount }}">
+                                ${{ number_format($reward->minimum_amount, 2) }} - {{ $reward->title }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <p class="mt-1 text-xs text-gray-500">Selecting a reward will set the minimum amount required</p>
+                </div>
+                @endif
+                
+                <div id="errorMessages" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded"></div>
+                <div id="successMessage" class="hidden bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded"></div>
+                
+                <div class="flex justify-end space-x-3">
+                    <button type="button" id="cancelDonation" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        Cancel
+                    </button>
+                    <button type="submit" id="submitDonation" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <span id="submitText">Donate Now</span>
+                        <span id="submitSpinner" class="hidden">Processing...</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// AJAX Donation Modal Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('donationModal');
+    const quickDonateBtn = document.getElementById('quickDonateBtn');
+    const closeModalBtn = document.getElementById('closeModal');
+    const cancelBtn = document.getElementById('cancelDonation');
+    const donationForm = document.getElementById('donationForm');
+    const rewardSelect = document.getElementById('reward_id');
+    const amountInput = document.getElementById('amount');
+    
+    // Open modal
+    if (quickDonateBtn) {
+        quickDonateBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            modal.classList.remove('hidden');
+            amountInput.focus();
+        });
+    }
+    
+    // Close modal
+    function closeModal() {
+        modal.classList.add('hidden');
+        donationForm.reset();
+        hideMessages();
+    }
+    
+    closeModalBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+    
+    // Close modal when clicking outside
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+    
+    // Handle reward selection - update minimum amount
+    if (rewardSelect) {
+        rewardSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            if (selectedOption.dataset.amount) {
+                const minAmount = parseFloat(selectedOption.dataset.amount);
+                amountInput.min = minAmount;
+                if (parseFloat(amountInput.value) < minAmount) {
+                    amountInput.value = minAmount;
+                }
+            } else {
+                amountInput.min = 1;
+            }
+        });
+    }
+    
+    // Handle form submission
+    donationForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const submitBtn = document.getElementById('submitDonation');
+        const submitText = document.getElementById('submitText');
+        const submitSpinner = document.getElementById('submitSpinner');
+        
+        // Show loading state
+        submitBtn.disabled = true;
+        submitText.classList.add('hidden');
+        submitSpinner.classList.remove('hidden');
+        hideMessages();
+        
+        // Prepare form data
+        const formData = new FormData(this);
+        
+        // Make AJAX request
+        fetch(`/api/campaigns/{{ $campaign->id }}/donate`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                showSuccess(data.message);
+                updateCampaignProgress(data.data);
+                
+                // Reset form and close modal after short delay
+                setTimeout(() => {
+                    closeModal();
+                    location.reload(); // Refresh to show updated totals
+                }, 2000);
+            } else {
+                showErrors(data.errors || [data.message || 'An error occurred']);
+            }
+        })
+        .catch(error => {
+            console.error('Donation error:', error);
+            showErrors(['Network error. Please try again.']);
+        })
+        .finally(() => {
+            // Reset button state
+            submitBtn.disabled = false;
+            submitText.classList.remove('hidden');
+            submitSpinner.classList.add('hidden');
+        });
+    });
+    
+    function showErrors(errors) {
+        const errorDiv = document.getElementById('errorMessages');
+        if (Array.isArray(errors)) {
+            errorDiv.innerHTML = errors.map(error => `<div>${error}</div>`).join('');
+        } else {
+            errorDiv.innerHTML = `<div>${errors}</div>`;
+        }
+        errorDiv.classList.remove('hidden');
+    }
+    
+    function showSuccess(message) {
+        const successDiv = document.getElementById('successMessage');
+        successDiv.innerHTML = `<div>${message}</div>`;
+        successDiv.classList.remove('hidden');
+    }
+    
+    function hideMessages() {
+        document.getElementById('errorMessages').classList.add('hidden');
+        document.getElementById('successMessage').classList.add('hidden');
+    }
+    
+    function updateCampaignProgress(donation) {
+        // Update progress bar and amounts in real-time
+        const progressBar = document.querySelector('.bg-blue-600');
+        const raisedAmount = document.querySelector('[data-raised-amount]');
+        
+        if (progressBar && raisedAmount) {
+            // This would require updating the campaign totals
+            // For now, we'll just show success and reload
+            console.log('Donation successful:', donation);
         }
     }
 });

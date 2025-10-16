@@ -27,6 +27,7 @@ class CampaignSeeder extends Seeder
             'deadline' => now()->addMonths(3),
             'status' => 'active',
             'category' => 'Technology',
+            'image_path' => 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=600&fit=crop',
             'backers_count' => 127,
             'featured' => true,
         ]);
@@ -41,6 +42,7 @@ class CampaignSeeder extends Seeder
             'deadline' => now()->addMonths(2),
             'status' => 'active',
             'category' => 'Health',
+            'image_path' => 'https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=800&h=600&fit=crop',
             'backers_count' => 45,
             'featured' => false,
         ]);
@@ -55,6 +57,7 @@ class CampaignSeeder extends Seeder
             'deadline' => now()->addMonths(1),
             'status' => 'completed',
             'category' => 'Music',
+            'image_path' => 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=800&h=600&fit=crop',
             'backers_count' => 203,
             'featured' => true,
         ]);

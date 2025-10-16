@@ -62,11 +62,11 @@ class DonationController extends Controller
             $campaign->increment('current_amount', $donation->amount);
             $campaign->increment('backers_count');
 
-            // Update reward quantity if a reward was selected
-            if ($validated['reward_id']) {
+            // Update reward backers count if a reward was selected
+            if (isset($validated['reward_id']) && $validated['reward_id']) {
                 $reward = \App\Models\Reward::find($validated['reward_id']);
-                if ($reward && $reward->limit_quantity) {
-                    $reward->increment('claimed_quantity');
+                if ($reward) {
+                    $reward->increment('current_backers');
                 }
             }
 
@@ -81,9 +81,16 @@ class DonationController extends Controller
         } catch (\Exception $e) {
             DB::rollback();
             
+            // Log the actual error for debugging
+            \Log::error('Donation Error: ' . $e->getMessage(), [
+                'campaign_id' => $campaign->id,
+                'user_id' => Auth::id(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'There was an error processing your donation. Please try again.');
+                ->with('error', 'There was an error processing your donation. Please try again. Error: ' . $e->getMessage());
         }
     }
 

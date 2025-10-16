@@ -11,7 +11,26 @@ use Illuminate\Support\Facades\Auth;
 
 // Home page
 Route::get('/', function () {
-    return view('home');
+    // Get featured campaigns (limit 6 for home page)
+    $featuredCampaigns = \App\Models\Campaign::with(['user', 'categories'])
+        ->active()
+        ->notExpired()
+        ->orderBy('featured', 'desc')
+        ->orderBy('created_at', 'desc')
+        ->limit(6)
+        ->get();
+    
+    // Get statistics
+    $stats = [
+        'total_campaigns' => \App\Models\Campaign::count(),
+        'total_raised' => \App\Models\Campaign::sum('current_amount'),
+        'total_backers' => \App\Models\Campaign::sum('backers_count'),
+        'success_rate' => \App\Models\Campaign::where('status', 'completed')->count() > 0 
+            ? round((\App\Models\Campaign::where('status', 'completed')->count() / \App\Models\Campaign::count()) * 100)
+            : 0
+    ];
+    
+    return view('home', compact('featuredCampaigns', 'stats'));
 })->name('home');
 
 // Test route for categories
@@ -22,8 +41,18 @@ Route::get('/test-categories', function () {
     return view('test-categories', compact('categories', 'campaignsWithCategories'));
 })->name('test.categories');
 
-// Public campaign routes (viewing) - temporarily commented for debugging
-// Route::resource('campaigns', CampaignController::class)->only(['index', 'show']);
+// Lab 10: API Test Page
+Route::get('/api-test', function () {
+    return view('api-test');
+})->name('api.test');
+
+// Campaign creation and editing requires authentication (MUST come before {campaign} route)
+Route::middleware('auth')->group(function () {
+    Route::get('/campaigns/create', [CampaignController::class, 'create'])->name('campaigns.create');
+    Route::post('/campaigns', [CampaignController::class, 'store'])->name('campaigns.store');
+});
+
+// Public campaign routes (viewing)
 Route::get('/campaigns', [CampaignController::class, 'index'])->name('campaigns.index');
 Route::get('/campaigns/{campaign}', [CampaignController::class, 'show'])->name('campaigns.show');
 
@@ -68,10 +97,8 @@ Route::get('/start-campaign', function () {
     ]);
 })->name('campaigns.start');
 
-// Campaign creation and editing requires authentication
+// Campaign editing requires authentication
 Route::middleware('auth')->group(function () {
-    Route::get('/campaigns/create', [CampaignController::class, 'create'])->name('campaigns.create');
-    Route::post('/campaigns', [CampaignController::class, 'store'])->name('campaigns.store');
     Route::get('/campaigns/{campaign}/edit', [CampaignController::class, 'edit'])->name('campaigns.edit');
     Route::put('/campaigns/{campaign}', [CampaignController::class, 'update'])->name('campaigns.update');
 });
@@ -180,14 +207,6 @@ Route::get('/test-donations', function () {
     
     return $html;
 })->name('test.donations');
-
-// Campaign creation and editing requires authentication (must come before resource routes)
-Route::middleware('auth')->group(function () {
-    Route::get('/campaigns/create', [CampaignController::class, 'create'])->name('campaigns.create');
-    Route::post('/campaigns', [CampaignController::class, 'store'])->name('campaigns.store');
-    Route::get('/campaigns/{campaign}/edit', [CampaignController::class, 'edit'])->name('campaigns.edit');
-    Route::put('/campaigns/{campaign}', [CampaignController::class, 'update'])->name('campaigns.update');
-});
 
 // Test Campaign models and relationships
 Route::get('/test-campaigns', function () {

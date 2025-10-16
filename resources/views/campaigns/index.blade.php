@@ -226,15 +226,17 @@
             @foreach($campaigns as $campaign)
                 <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-200 flex flex-col h-full">
                     <!-- Campaign Image - Fixed Height -->
-                    <div class="h-48 bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center flex-shrink-0">
+                    <div class="h-48 bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center flex-shrink-0 relative overflow-hidden">
                         @if($campaign->image_path)
                             <img src="{{ $campaign->image_path }}" 
                                  alt="{{ $campaign->title }}" 
                                  class="w-full h-full object-cover"
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <span class="text-white text-lg font-semibold hidden items-center justify-center w-full h-full">{{ $campaign->category }}</span>
+                                 onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1533090161767-e6ffed986c88?w=800&h=600&fit=crop';">
                         @else
-                            <span class="text-white text-lg font-semibold">{{ $campaign->category }}</span>
+                            <img src="https://images.unsplash.com/photo-1533090161767-e6ffed986c88?w=800&h=600&fit=crop" 
+                                 alt="{{ $campaign->title }}" 
+                                 class="w-full h-full object-cover opacity-50">
+                            <span class="absolute text-white text-lg font-semibold">{{ $campaign->category }}</span>
                         @endif
                     </div>
                     
