@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 <div class="container mx-auto px-4 py-8">
@@ -19,7 +19,7 @@
             <div class="space-y-3">
                 <div class="flex justify-between">
                     <span class="text-gray-600">Amount:</span>
-                    <span class="font-semibold text-gray-900">${{ number_format($donation->amount, 2) }}</span>
+                    <span class="font-semibold text-gray-900">৳{{ number_format($donation->amount, 2) }}</span>
                 </div>
                 
                 <div class="flex justify-between">
@@ -87,8 +87,8 @@
             
             <div class="mb-4">
                 <div class="flex justify-between text-sm text-gray-600 mb-1">
-                    <span>${{ number_format($campaign->current_amount) }} raised</span>
-                    <span>${{ number_format($campaign->goal_amount) }} goal</span>
+                    <span>৳{{ number_format($campaign->current_amount) }} raised</span>
+                    <span>৳{{ number_format($campaign->goal_amount) }} goal</span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-4">
                     <div class="bg-green-500 h-4 rounded-full transition-all duration-500" style="width: {{ $campaign->progress_percentage }}%"></div>
@@ -118,8 +118,8 @@
         <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
             <h3 class="text-lg font-semibold text-blue-800 mb-2">Your Impact</h3>
             <p class="text-blue-700">
-                Your generous donation of ${{ number_format($donation->amount, 2) }} brings this campaign 
-                ${{ number_format($campaign->goal_amount - $campaign->current_amount + $donation->amount, 2) }} closer to its goal.
+                Your generous donation of ৳{{ number_format($donation->amount, 2) }} brings this campaign 
+                ৳{{ number_format($campaign->goal_amount - $campaign->current_amount + $donation->amount, 2) }} closer to its goal.
                 @if($campaign->progress_percentage >= 100)
                     Thanks to supporters like you, this campaign has reached its funding goal!
                 @else

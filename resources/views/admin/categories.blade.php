@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 <div class="min-h-screen bg-gray-50">
@@ -226,11 +226,11 @@
                                     <div class="text-sm text-gray-500">campaigns</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">${{ number_format($category['total_raised']) }}</div>
+                                    <div class="text-sm text-gray-900">৳{{ number_format($category['total_raised']) }}</div>
                                     <div class="text-sm text-gray-500">raised</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">${{ number_format($category['avg_goal']) }}</div>
+                                    <div class="text-sm text-gray-900">৳{{ number_format($category['avg_goal']) }}</div>
                                     <div class="text-sm text-gray-500">average</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">

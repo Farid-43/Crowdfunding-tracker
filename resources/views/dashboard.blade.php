@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Dashboard - Crowdfunding Tracker')
 
@@ -71,7 +71,7 @@
                 <div class="flex items-center">
                     <div class="flex-1">
                         <p class="text-green-100 text-sm font-medium uppercase tracking-wide">Total Raised</p>
-                        <p class="text-3xl font-bold">${{ number_format($stats['total_raised']) }}</p>
+                        <p class="text-3xl font-bold">৳{{ number_format($stats['total_raised']) }}</p>
                     </div>
                     <div class="text-green-200">
                         <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
@@ -86,7 +86,7 @@
                 <div class="flex items-center">
                     <div class="flex-1">
                         <p class="text-purple-100 text-sm font-medium uppercase tracking-wide">My Donations</p>
-                        <p class="text-3xl font-bold">${{ number_format($stats['total_donated']) }}</p>
+                        <p class="text-3xl font-bold">৳{{ number_format($stats['total_donated']) }}</p>
                     </div>
                     <div class="text-purple-200">
                         <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
@@ -160,7 +160,7 @@
                                                     <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                                         <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
                                                     </svg>
-                                                    ${{ number_format($campaign->current_amount) }} / ${{ number_format($campaign->goal_amount) }}
+                                                    ৳{{ number_format($campaign->current_amount) }} / ৳{{ number_format($campaign->goal_amount) }}
                                                 </span>
                                                 <span class="flex items-center">
                                                     <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -252,7 +252,7 @@
                                                     <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                                                         <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
                                                     </svg>
-                                                    ${{ number_format($donation->amount, 2) }}
+                                                    ৳{{ number_format($donation->amount, 2) }}
                                                 </span>
                                                 <span class="flex items-center">
                                                     <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -331,7 +331,7 @@
                     </div>
                     <div class="flex justify-between">
                         <span class="text-gray-600">Avg. Campaign Goal:</span>
-                        <span class="font-medium">${{ number_format($stats['avg_campaign_goal']) }}</span>
+                        <span class="font-medium">৳{{ number_format($stats['avg_campaign_goal']) }}</span>
                     </div>
                 </div>
             </div>
@@ -346,11 +346,11 @@
                     </div>
                     <div class="flex justify-between">
                         <span class="text-gray-600">Total Donated:</span>
-                        <span class="font-medium">${{ number_format($stats['total_donated']) }}</span>
+                        <span class="font-medium">৳{{ number_format($stats['total_donated']) }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-gray-600">Avg. Donation:</span>
-                        <span class="font-medium">${{ number_format($stats['avg_donation']) }}</span>
+                        <span class="font-medium">৳{{ number_format($stats['avg_donation']) }}</span>
                     </div>
                 </div>
             </div>
@@ -370,7 +370,7 @@
                             @else
                                 <div class="w-2 h-2 bg-green-500 rounded-full"></div>
                                 <div class="flex-1 min-w-0">
-                                    <p class="text-sm text-gray-900 truncate">Donated ${{ number_format($activity['amount']) }} to <a href="{{ $activity['url'] }}" class="font-medium text-green-600 hover:text-green-800">{{ $activity['title'] }}</a></p>
+                                    <p class="text-sm text-gray-900 truncate">Donated ৳{{ number_format($activity['amount']) }} to <a href="{{ $activity['url'] }}" class="font-medium text-green-600 hover:text-green-800">{{ $activity['title'] }}</a></p>
                                     <p class="text-xs text-gray-500">{{ $activity['date']->diffForHumans() }}</p>
                                 </div>
                             @endif

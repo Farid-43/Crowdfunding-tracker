@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 <div class="container mx-auto px-4 py-8">
@@ -22,7 +22,7 @@
                     <!-- Progress Info -->
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                         <div>
-                            <div class="text-2xl font-bold text-blue-600">${{ number_format($campaign->current_amount) }}</div>
+                            <div class="text-2xl font-bold text-blue-600">৳{{ number_format($campaign->current_amount) }}</div>
                             <div class="text-sm text-gray-600">Raised</div>
                         </div>
                         <div>
@@ -92,7 +92,7 @@
 
                                 <div class="text-right">
                                     <div class="text-2xl font-bold text-green-600 mb-1">
-                                        ${{ number_format($donation->amount, 2) }}
+                                        ৳{{ number_format($donation->amount, 2) }}
                                     </div>
                                     
                                     <span class="inline-block bg-blue-100 text-blue-600 text-xs px-2 py-1 rounded-full">
@@ -130,7 +130,7 @@
         <!-- Donation Statistics -->
         <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="bg-white rounded-lg shadow-md p-6 text-center">
-                <div class="text-3xl font-bold text-blue-600 mb-2">${{ number_format($totalAmount, 2) }}</div>
+                <div class="text-3xl font-bold text-blue-600 mb-2">৳{{ number_format($totalAmount, 2) }}</div>
                 <div class="text-gray-600">Total Raised</div>
             </div>
             
@@ -141,7 +141,7 @@
             
             <div class="bg-white rounded-lg shadow-md p-6 text-center">
                 <div class="text-3xl font-bold text-purple-600 mb-2">
-                    ${{ $totalDonations > 0 ? number_format($totalAmount / $totalDonations, 2) : '0.00' }}
+                    ৳{{ $totalDonations > 0 ? number_format($totalAmount / $totalDonations, 2) : '0.00' }}
                 </div>
                 <div class="text-gray-600">Average Donation</div>
             </div>

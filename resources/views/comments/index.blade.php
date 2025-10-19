@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -111,7 +111,7 @@
                 <div class="flex items-center mt-2 text-sm text-gray-600">
                     <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full">{{ ucfirst($campaign->category) }}</span>
                     <span class="mx-2">•</span>
-                    <span>${{ number_format($campaign->current_amount) }} raised of ${{ number_format($campaign->goal_amount) }}</span>
+                    <span>৳{{ number_format($campaign->current_amount) }} raised of ৳{{ number_format($campaign->goal_amount) }}</span>
                 </div>
             </div>
             <div class="text-right">

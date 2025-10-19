@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 <div class="min-h-screen bg-gray-50">
@@ -142,10 +142,10 @@
                                         <div class="text-sm text-gray-500">{{ $campaign->user->email }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        ${{ number_format($campaign->goal_amount) }}
+                                        ৳{{ number_format($campaign->goal_amount) }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        ${{ number_format($campaign->current_amount) }}
+                                        ৳{{ number_format($campaign->current_amount) }}
                                         <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
                                             <div class="bg-green-500 h-1.5 rounded-full" style="width: {{ min(100, $campaign->progress_percentage) }}%"></div>
                                         </div>
@@ -162,15 +162,17 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {{ $campaign->created_at->format('M j, Y') }}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                        <a href="{{ route('campaigns.show', $campaign) }}" class="text-indigo-600 hover:text-indigo-900">View</a>
-                                        <a href="{{ route('campaigns.edit', $campaign) }}" class="text-yellow-600 hover:text-yellow-900">Edit</a>
-                                        <form method="POST" action="{{ route('campaigns.destroy', $campaign) }}" class="inline" 
-                                              onsubmit="return confirm('Are you sure you want to delete this campaign?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
-                                        </form>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex items-center gap-2">
+                                            <a href="{{ route('campaigns.show', $campaign) }}" class="text-indigo-600 hover:text-indigo-900">View</a>
+                                            <a href="{{ route('campaigns.edit', $campaign) }}" class="text-yellow-600 hover:text-yellow-900">Edit</a>
+                                            <form method="POST" action="{{ route('campaigns.destroy', $campaign) }}" class="m-0" 
+                                                  onsubmit="return confirm('Are you sure you want to delete this campaign?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach

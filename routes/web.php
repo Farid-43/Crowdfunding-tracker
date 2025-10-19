@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DonationController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\RewardController;
@@ -32,6 +33,11 @@ Route::get('/', function () {
     
     return view('home', compact('featuredCampaigns', 'stats'));
 })->name('home');
+
+// About page
+Route::get('/about', function () {
+    return view('about');
+})->name('about');
 
 // Test route for categories
 Route::get('/test-categories', function () {
@@ -118,7 +124,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
     Route::get('/categories', [AdminController::class, 'categories'])->name('admin.categories');
     Route::get('/comments', [AdminController::class, 'comments'])->name('admin.comments');
+    Route::get('/contacts', [AdminController::class, 'contacts'])->name('admin.contacts');
+    Route::patch('/contacts/{id}/mark-read', [AdminController::class, 'markContactAsRead'])->name('admin.contacts.mark-read');
 });
+
+// Contact Us routes (public)
+Route::get('/contact', [ContactController::class, 'showForm'])->name('contact.form');
+Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
 
 // Dashboard route - redirect admins to admin dashboard, users to user dashboard
 Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
@@ -138,7 +150,8 @@ Route::get('/logout-now', function () {
 })->middleware('auth')->name('logout.get');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });

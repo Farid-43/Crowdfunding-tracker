@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -70,16 +70,14 @@
                 @endif
             </div>
 
-            <!-- Progress Section -->
+                <!-- Progress Section -->
             <div class="bg-gray-50 rounded-lg p-6 mb-8">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <!-- Amount Raised -->
                     <div class="text-center">
-                        <div class="text-3xl font-bold text-green-600">${{ number_format($campaign->current_amount) }}</div>
-                        <div class="text-sm text-gray-600">raised of ${{ number_format($campaign->goal_amount) }} goal</div>
-                    </div>
-                    
-                    <!-- Progress Percentage -->
+                        <div class="text-3xl font-bold text-green-600">৳{{ number_format($campaign->current_amount) }}</div>
+                        <div class="text-sm text-gray-600">raised of ৳{{ number_format($campaign->goal_amount) }} goal</div>
+                    </div>                    <!-- Progress Percentage -->
                     <div class="text-center">
                         <div class="text-3xl font-bold text-blue-600">{{ $campaign->progress_percentage }}%</div>
                         <div class="text-sm text-gray-600">funded</div>
@@ -230,7 +228,7 @@
             @auth
                 @if(auth()->user()->role === 'admin')
                     <div class="border-t pt-6 mb-6">
-                        <div class="flex gap-4">
+                        <div class="flex items-center gap-4">
                             <!-- Edit button for admins only -->
                             <a href="{{ route('campaigns.edit', $campaign) }}" 
                                class="bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
@@ -240,7 +238,7 @@
                             <!-- Delete button only for admins -->
                             <form method="POST" action="{{ route('campaigns.destroy', $campaign) }}" 
                                   onsubmit="return confirm('Are you sure you want to delete this campaign? This action cannot be undone and will affect all associated donations.')"
-                                  class="inline">
+                                  class="m-0 inline-block">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" 
@@ -271,7 +269,7 @@
                                 <div class="flex justify-between items-start mb-2">
                                     <h3 class="font-semibold text-gray-900">{{ $reward->title }}</h3>
                                     <span class="text-lg font-bold text-blue-600">
-                                        ${{ number_format($reward->minimum_amount, 0) }}+
+                                        ৳{{ number_format($reward->minimum_amount) }}+
                                     </span>
                                 </div>
                                 
@@ -416,23 +414,23 @@
                                 
                                 <!-- Comment Actions -->
                                 @auth
-                                    <div class="flex items-center space-x-4">
+                                    <div class="flex items-center gap-4">
                                         @if($comment->canBeEditedBy(auth()->user()))
                                             <button 
                                                 onclick="toggleEditComment({{ $comment->id }})"
-                                                class="text-blue-600 hover:text-blue-800 text-sm"
+                                                class="text-blue-600 hover:text-blue-800 text-sm font-medium"
                                             >
                                                 Edit
                                             </button>
                                         @endif
                                         
                                         @if(auth()->user()->isAdmin() || $campaign->user_id === auth()->id())
-                                            <form action="{{ route('comments.toggle-pin', $comment) }}" method="POST" class="inline">
+                                            <form action="{{ route('comments.toggle-pin', $comment) }}" method="POST" class="m-0">
                                                 @csrf
                                                 @method('PATCH')
                                                 <button 
                                                     type="submit"
-                                                    class="text-yellow-600 hover:text-yellow-800 text-sm"
+                                                    class="text-yellow-600 hover:text-yellow-800 text-sm font-medium"
                                                 >
                                                     {{ $comment->is_pinned ? 'Unpin' : 'Pin' }}
                                                 </button>
@@ -440,13 +438,13 @@
                                         @endif
                                         
                                         @if($comment->canBeDeletedBy(auth()->user()))
-                                            <form action="{{ route('comments.destroy', $comment) }}" method="POST" class="inline">
+                                            <form action="{{ route('comments.destroy', $comment) }}" method="POST" class="m-0">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button 
                                                     type="submit"
                                                     onclick="return confirm('Are you sure you want to delete this comment?')"
-                                                    class="text-red-600 hover:text-red-800 text-sm"
+                                                    class="text-red-600 hover:text-red-800 text-sm font-medium"
                                                 >
                                                     Delete
                                                 </button>
@@ -621,7 +619,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <option value="">No reward</option>
                         @foreach($campaign->rewards as $reward)
                             <option value="{{ $reward->id }}" data-amount="{{ $reward->minimum_amount }}">
-                                ${{ number_format($reward->minimum_amount, 2) }} - {{ $reward->title }}
+                                ৳{{ number_format($reward->minimum_amount) }} - {{ $reward->title }}
                             </option>
                         @endforeach
                     </select>
@@ -647,41 +645,52 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <script>
+// Open modal function (called by onclick)
+function openDonateModal() {
+    const modal = document.getElementById('donationModal');
+    const amountInput = document.getElementById('amount');
+    modal.classList.remove('hidden');
+    if (amountInput) {
+        amountInput.focus();
+    }
+}
+
+// Close modal function (called by onclick)
+function closeDonateModal() {
+    const modal = document.getElementById('donationModal');
+    const donationForm = document.getElementById('donationForm');
+    modal.classList.add('hidden');
+    if (donationForm) {
+        donationForm.reset();
+    }
+    hideMessages();
+}
+
 // AJAX Donation Modal Functionality
 document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('donationModal');
-    const quickDonateBtn = document.getElementById('quickDonateBtn');
     const closeModalBtn = document.getElementById('closeModal');
     const cancelBtn = document.getElementById('cancelDonation');
     const donationForm = document.getElementById('donationForm');
     const rewardSelect = document.getElementById('reward_id');
     const amountInput = document.getElementById('amount');
     
-    // Open modal
-    if (quickDonateBtn) {
-        quickDonateBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            modal.classList.remove('hidden');
-            amountInput.focus();
-        });
+    // Attach close handlers
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', closeDonateModal);
     }
-    
-    // Close modal
-    function closeModal() {
-        modal.classList.add('hidden');
-        donationForm.reset();
-        hideMessages();
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', closeDonateModal);
     }
-    
-    closeModalBtn.addEventListener('click', closeModal);
-    cancelBtn.addEventListener('click', closeModal);
     
     // Close modal when clicking outside
-    modal.addEventListener('click', function(e) {
-        if (e.target === modal) {
-            closeModal();
-        }
-    });
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeDonateModal();
+            }
+        });
+    }
     
     // Handle reward selection - update minimum amount
     if (rewardSelect) {
@@ -733,7 +742,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Reset form and close modal after short delay
                 setTimeout(() => {
-                    closeModal();
+                    closeDonateModal();
                     location.reload(); // Refresh to show updated totals
                 }, 2000);
             } else {

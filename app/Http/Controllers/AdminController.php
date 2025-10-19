@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Campaign;
 use App\Models\Comment;
+use App\Models\Contact;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -242,5 +243,32 @@ class AdminController extends Controller
         ];
 
         return view('admin.comments', compact('comments', 'stats', 'search', 'filter', 'sort'));
+    }
+
+    /**
+     * Display all contact messages
+     */
+    public function contacts()
+    {
+        $contacts = Contact::orderBy('created_at', 'desc')->paginate(15);
+        
+        $stats = [
+            'total' => Contact::count(),
+            'pending' => Contact::where('status', 'pending')->count(),
+            'read' => Contact::where('status', 'read')->count(),
+        ];
+
+        return view('admin.contacts', compact('contacts', 'stats'));
+    }
+
+    /**
+     * Mark contact as read
+     */
+    public function markContactAsRead($id)
+    {
+        $contact = Contact::findOrFail($id);
+        $contact->update(['status' => 'read']);
+
+        return redirect()->back()->with('success', 'Contact marked as read');
     }
 } 

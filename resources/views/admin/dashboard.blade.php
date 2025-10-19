@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -40,6 +40,9 @@
                 </a>
                 <a href="{{ route('admin.users') }}" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-200">
                     Manage Users
+                </a>
+                <a href="{{ route('admin.contacts') }}" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition duration-200">
+                    Contact Messages
                 </a>
             </div>
         </div>
@@ -102,7 +105,7 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-600">Total Raised</p>
-                    <p class="text-2xl font-bold text-gray-900">${{ number_format($stats['total_raised']) }}</p>
+                    <p class="text-2xl font-bold text-gray-900">৳{{ number_format($stats['total_raised']) }}</p>
                 </div>
             </div>
         </div>
@@ -130,7 +133,7 @@
                                     <p class="text-sm text-gray-600">by {{ $campaign->user->name }}</p>
                                     <div class="flex items-center mt-2">
                                         <span class="text-sm font-medium text-gray-900">
-                                            ${{ number_format($campaign->current_amount) }} / ${{ number_format($campaign->goal_amount) }}
+                                            ৳{{ number_format($campaign->current_amount) }} / ৳{{ number_format($campaign->goal_amount) }}
                                         </span>
                                         <span class="ml-2 px-2 py-1 text-xs rounded-full
                                             @if($campaign->status === 'active') bg-green-100 text-green-800
@@ -223,10 +226,10 @@
                                         <div class="text-sm text-gray-900">{{ $campaign->user->name }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-gray-900">${{ number_format($campaign->current_amount) }}</div>
+                                        <div class="text-sm font-medium text-gray-900">৳{{ number_format($campaign->current_amount) }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">${{ number_format($campaign->goal_amount) }}</div>
+                                        <div class="text-sm text-gray-900">৳{{ number_format($campaign->goal_amount) }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @php

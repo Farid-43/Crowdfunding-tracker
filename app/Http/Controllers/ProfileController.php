@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\Campaign;
+use App\Models\Donation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,6 +13,46 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
+    /**
+     * Display the user's profile.
+     */
+    public function show(Request $request): View
+    {
+        $user = $request->user();
+        
+        // Get user's campaigns
+        $myCampaigns = Campaign::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        // Get user's donations
+        $myDonations = Donation::where('user_id', $user->id)
+            ->with('campaign')
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        // Get campaigns user has backed
+        $backedCampaigns = Campaign::whereHas('donations', function($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })->distinct()->get();
+        
+        // Calculate statistics
+        $campaignsCreated = $myCampaigns->count();
+        $totalDonated = $myDonations->sum('amount');
+        $campaignsBacked = $backedCampaigns->count();
+        $commentsCount = $user->comments()->count();
+        
+        return view('profile.show', compact(
+            'myCampaigns',
+            'myDonations',
+            'backedCampaigns',
+            'campaignsCreated',
+            'totalDonated',
+            'campaignsBacked',
+            'commentsCount'
+        ));
+    }
+
     /**
      * Display the user's profile form.
      */

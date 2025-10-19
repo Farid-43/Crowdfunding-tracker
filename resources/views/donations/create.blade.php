@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 <div class="container mx-auto px-4 py-8">
@@ -22,8 +22,8 @@
                     <!-- Progress Bar -->
                     <div class="mb-4">
                         <div class="flex justify-between text-sm text-gray-600 mb-1">
-                            <span>${{ number_format($campaign->current_amount) }} raised</span>
-                            <span>${{ number_format($campaign->goal_amount) }} goal</span>
+                            <span>৳{{ number_format($campaign->current_amount) }} raised</span>
+                            <span>৳{{ number_format($campaign->goal_amount) }} goal</span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-3">
                             <div class="bg-blue-600 h-3 rounded-full transition-all duration-300" style="width: {{ $campaign->progress_percentage }}%"></div>
@@ -129,7 +129,7 @@
                             <div class="flex-grow">
                                 <div class="flex items-center justify-between">
                                     <h4 class="text-sm font-medium text-gray-900">{{ $reward->title }}</h4>
-                                    <span class="text-sm font-bold text-blue-600">${{ number_format($reward->minimum_amount) }}+</span>
+                                    <span class="text-sm font-bold text-blue-600">৳{{ number_format($reward->minimum_amount) }}+</span>
                                 </div>
                                 <p class="text-sm text-gray-600 mt-1">{{ $reward->description }}</p>
                                 

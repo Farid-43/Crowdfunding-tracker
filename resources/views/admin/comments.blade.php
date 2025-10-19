@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 <div class="min-h-screen bg-gray-50">
@@ -307,13 +307,13 @@
                                     @endif
                                 </div>
                                 
-                                <div class="flex items-center space-x-3">
+                                <div class="flex items-center gap-3">
                                     <a href="{{ route('campaigns.show', $comment->campaign) }}#comment-{{ $comment->id }}" 
                                        class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                                         👁️ View in Context
                                     </a>
                                     
-                                    <form method="POST" action="{{ route('comments.toggle-pin', $comment) }}" class="inline">
+                                    <form method="POST" action="{{ route('comments.toggle-pin', $comment) }}" class="m-0">
                                         @csrf
                                         @method('PATCH')
                                         <button type="submit" 
@@ -323,7 +323,7 @@
                                     </form>
                                     
                                     <form method="POST" action="{{ route('comments.destroy', $comment) }}" 
-                                          class="inline"
+                                          class="m-0"
                                           onsubmit="return confirm('Are you sure you want to delete this comment? This action cannot be undone.')">
                                         @csrf
                                         @method('DELETE')

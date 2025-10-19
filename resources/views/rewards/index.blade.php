@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -35,7 +35,7 @@
                             <h3 class="text-xl font-bold text-gray-900">{{ $reward->title }}</h3>
                             <div class="text-right">
                                 <div class="text-2xl font-bold text-blue-600">
-                                    ${{ number_format($reward->minimum_amount, 0) }}+
+                                    ৳{{ number_format($reward->minimum_amount, 0) }}+
                                 </div>
                                 <div class="text-sm text-gray-500">minimum</div>
                             </div>

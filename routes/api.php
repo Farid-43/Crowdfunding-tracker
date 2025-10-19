@@ -24,8 +24,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/campaigns', [CampaignController::class, 'index']);
 Route::get('/campaigns/{campaign}', [CampaignController::class, 'show']);
 
-// Donation API endpoint (for AJAX)
-Route::post('/campaigns/{campaign}/donate', [CampaignController::class, 'donate'])->middleware('auth');
+// Donation API endpoint (for AJAX) - guests can donate too
+Route::post('/campaigns/{campaign}/donate', [CampaignController::class, 'donate']);
 
 // Platform statistics API
 Route::get('/stats', [CampaignController::class, 'stats']);

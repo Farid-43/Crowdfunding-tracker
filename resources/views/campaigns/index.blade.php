@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -289,7 +289,7 @@
                             <!-- Progress Bar -->
                             <div class="mb-4">
                                 <div class="flex justify-between text-sm text-gray-600 mb-2">
-                                    <span>${{ number_format($campaign->current_amount) }} raised</span>
+                                    <span>৳{{ number_format($campaign->current_amount) }} raised</span>
                                     <span>{{ $campaign->progress_percentage }}%</span>
                                 </div>
                                 <div class="w-full bg-gray-200 rounded-full h-2">
@@ -300,7 +300,7 @@
                             
                             <!-- Campaign Stats -->
                             <div class="flex justify-between text-sm text-gray-600 mb-4">
-                                <span>${{ number_format($campaign->goal_amount) }} goal</span>
+                                <span>৳{{ number_format($campaign->goal_amount) }} goal</span>
                                 <span>{{ $campaign->days_remaining }} days left</span>
                             </div>
                             

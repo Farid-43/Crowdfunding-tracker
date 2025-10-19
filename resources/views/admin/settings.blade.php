@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 <div class="min-h-screen bg-gray-50">
@@ -198,7 +198,7 @@
                                 <p class="font-medium text-gray-900">Min Goal Amount</p>
                                 <p class="text-sm text-gray-600">Minimum funding goal</p>
                             </div>
-                            <span class="text-blue-600 font-semibold">${{ number_format($settings['min_campaign_goal']) }}</span>
+                            <span class="text-blue-600 font-semibold">৳{{ number_format($settings['min_campaign_goal']) }}</span>
                         </div>
 
                         <div class="flex justify-between items-center">
@@ -206,7 +206,7 @@
                                 <p class="font-medium text-gray-900">Max Goal Amount</p>
                                 <p class="text-sm text-gray-600">Maximum funding goal</p>
                             </div>
-                            <span class="text-blue-600 font-semibold">${{ number_format($settings['max_campaign_goal']) }}</span>
+                            <span class="text-blue-600 font-semibold">৳{{ number_format($settings['max_campaign_goal']) }}</span>
                         </div>
                     </div>
                 </div>

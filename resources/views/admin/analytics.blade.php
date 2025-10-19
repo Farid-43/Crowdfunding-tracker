@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 
@@ -137,7 +137,7 @@
                         </div>
                         <div class="ml-4">
                             <p class="text-sm text-gray-600">Total Raised</p>
-                            <p class="text-2xl font-bold text-gray-900">${{ number_format($analytics['total_raised'], 2) }}</p>
+                            <p class="text-2xl font-bold text-gray-900">৳{{ number_format($analytics['total_raised'], 2) }}</p>
                         </div>
                     </div>
                 </div>
@@ -173,7 +173,7 @@
                         </div>
                         <div class="flex justify-between items-center">
                             <span class="text-gray-600">Average Goal</span>
-                            <span class="font-semibold">${{ number_format($analytics['average_campaign_goal'], 2) }}</span>
+                            <span class="font-semibold">৳{{ number_format($analytics['average_campaign_goal'], 2) }}</span>
                         </div>
                         <div class="flex justify-between items-center">
                             <span class="text-gray-600">This Month</span>

@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 <div class="min-h-screen bg-gray-50">
@@ -152,7 +152,7 @@
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $category->category }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $category->count }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${{ number_format($category->total_raised, 2) }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">৳{{ number_format($category->total_raised, 2) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -226,7 +226,7 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $campaign->user->name }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $campaign->category }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${{ number_format($campaign->goal_amount, 2) }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">৳{{ number_format($campaign->goal_amount, 2) }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $campaign->created_at->format('M j, Y') }}</td>
                                 </tr>
                             @endforeach

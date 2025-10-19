@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 <div class="container mx-auto px-4 py-8">
@@ -12,7 +12,7 @@
         <!-- Summary Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div class="bg-white rounded-lg shadow-md p-6 text-center">
-                <div class="text-3xl font-bold text-green-600 mb-2">${{ number_format($totalDonated, 2) }}</div>
+                <div class="text-3xl font-bold text-green-600 mb-2">৳{{ number_format($totalDonated, 2) }}</div>
                 <div class="text-gray-600">Total Donated</div>
                 <div class="text-sm text-gray-500 mt-1">Across all campaigns</div>
             </div>
@@ -79,14 +79,14 @@
                                         <div class="flex items-center text-sm text-gray-600">
                                             <span>Campaign Progress: {{ $donation->campaign->progress_percentage }}%</span>
                                             <span class="mx-2">•</span>
-                                            <span>${{ number_format($donation->campaign->current_amount) }} / ${{ number_format($donation->campaign->goal_amount) }}</span>
+                                            <span>৳{{ number_format($donation->campaign->current_amount) }} / ৳{{ number_format($donation->campaign->goal_amount) }}</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="text-right ml-4">
                                     <div class="text-2xl font-bold text-green-600 mb-1">
-                                        ${{ number_format($donation->amount, 2) }}
+                                        ৳{{ number_format($donation->amount, 2) }}
                                     </div>
                                     
                                     <div class="flex flex-col gap-1">
@@ -146,10 +146,10 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
                     <p class="text-gray-700">
-                        <strong>Total Contribution:</strong> ${{ number_format($totalDonated, 2) }}
+                        <strong>Total Contribution:</strong> ৳{{ number_format($totalDonated, 2) }}
                     </p>
                     <p class="text-gray-700">
-                        <strong>Average Donation:</strong> ${{ number_format($donations->total() > 0 ? $totalDonated / $donations->total() : 0, 2) }}
+                        <strong>Average Donation:</strong> ৳{{ number_format($donations->total() > 0 ? $totalDonated / $donations->total() : 0, 2) }}
                     </p>
                 </div>
                 <div>
