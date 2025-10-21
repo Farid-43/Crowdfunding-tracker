@@ -20,6 +20,7 @@ class CategorySeeder extends Seeder
                 'description' => 'Innovative tech projects, apps, gadgets, and digital solutions',
                 'color' => '#3B82F6',
                 'icon' => 'fas fa-laptop',
+                'is_active' => true,
                 'sort_order' => 1,
             ],
             [
@@ -28,6 +29,7 @@ class CategorySeeder extends Seeder
                 'description' => 'Creative projects, music, films, books, and cultural initiatives',
                 'color' => '#8B5CF6',
                 'icon' => 'fas fa-palette',
+                'is_active' => true,
                 'sort_order' => 2,
             ],
             [
@@ -36,6 +38,7 @@ class CategorySeeder extends Seeder
                 'description' => 'Eco-friendly projects, sustainability, and environmental protection',
                 'color' => '#10B981',
                 'icon' => 'fas fa-leaf',
+                'is_active' => true,
                 'sort_order' => 3,
             ],
             [
@@ -44,6 +47,7 @@ class CategorySeeder extends Seeder
                 'description' => 'Learning platforms, educational resources, and academic projects',
                 'color' => '#F59E0B',
                 'icon' => 'fas fa-graduation-cap',
+                'is_active' => true,
                 'sort_order' => 4,
             ],
             [
@@ -52,6 +56,7 @@ class CategorySeeder extends Seeder
                 'description' => 'Healthcare innovations, fitness, mental health, and wellness projects',
                 'color' => '#EF4444',
                 'icon' => 'fas fa-heartbeat',
+                'is_active' => true,
                 'sort_order' => 5,
             ],
             [
@@ -60,6 +65,7 @@ class CategorySeeder extends Seeder
                 'description' => 'Community projects, charity initiatives, and social good campaigns',
                 'color' => '#06B6D4',
                 'icon' => 'fas fa-hands-helping',
+                'is_active' => true,
                 'sort_order' => 6,
             ],
             [
@@ -68,6 +74,7 @@ class CategorySeeder extends Seeder
                 'description' => 'Startups, business ventures, and entrepreneurial projects',
                 'color' => '#6366F1',
                 'icon' => 'fas fa-briefcase',
+                'is_active' => true,
                 'sort_order' => 7,
             ],
             [
@@ -76,6 +83,7 @@ class CategorySeeder extends Seeder
                 'description' => 'Video games, board games, and interactive entertainment',
                 'color' => '#EC4899',
                 'icon' => 'fas fa-gamepad',
+                'is_active' => true,
                 'sort_order' => 8,
             ],
             [
@@ -84,6 +92,7 @@ class CategorySeeder extends Seeder
                 'description' => 'Culinary projects, restaurants, food products, and beverage innovations',
                 'color' => '#F97316',
                 'icon' => 'fas fa-utensils',
+                'is_active' => true,
                 'sort_order' => 9,
             ],
             [
@@ -92,6 +101,7 @@ class CategorySeeder extends Seeder
                 'description' => 'Athletic projects, fitness equipment, sports teams, and training programs',
                 'color' => '#84CC16',
                 'icon' => 'fas fa-running',
+                'is_active' => true,
                 'sort_order' => 10,
             ],
             [
@@ -100,6 +110,7 @@ class CategorySeeder extends Seeder
                 'description' => 'Travel experiences, adventure projects, and exploration initiatives',
                 'color' => '#14B8A6',
                 'icon' => 'fas fa-map-marked-alt',
+                'is_active' => true,
                 'sort_order' => 11,
             ],
             [
@@ -108,6 +119,7 @@ class CategorySeeder extends Seeder
                 'description' => 'Clothing lines, accessories, industrial design, and fashion innovation',
                 'color' => '#A855F7',
                 'icon' => 'fas fa-tshirt',
+                'is_active' => true,
                 'sort_order' => 12,
             ],
         ];

@@ -271,4 +271,17 @@ class AdminController extends Controller
 
         return redirect()->back()->with('success', 'Contact marked as read');
     }
+
+    /**
+     * Toggle campaign featured status
+     */
+    public function toggleFeatured($id)
+    {
+        $campaign = Campaign::findOrFail($id);
+        $campaign->featured = !$campaign->featured;
+        $campaign->save();
+
+        $status = $campaign->featured ? 'featured' : 'unfeatured';
+        return redirect()->back()->with('success', "Campaign has been {$status} successfully!");
+    }
 } 

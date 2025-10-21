@@ -11,6 +11,9 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
     <!-- Alpine.js x-cloak style -->
     <style>
         [x-cloak] { display: none !important; }
@@ -41,6 +44,9 @@
                     </a>
                     <a href="{{ route('about') }}" class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">
                         About
+                    </a>
+                    <a href="{{ route('contact.form') }}" class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">
+                        Contact Us
                     </a>
                 </div>
 
@@ -153,8 +159,5 @@
 
     <!-- Additional scripts -->
     @stack('scripts')
-    
-    <!-- Alpine.js for dropdown functionality - load at end without defer -->
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </body>
 </html>

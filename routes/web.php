@@ -118,6 +118,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/campaigns', [AdminController::class, 'campaigns'])->name('admin.campaigns');
+    Route::post('/campaigns/{id}/toggle-featured', [AdminController::class, 'toggleFeatured'])->name('admin.campaigns.toggle-featured');
     Route::get('/users', [AdminController::class, 'users'])->name('admin.users');
     Route::get('/analytics', [AdminController::class, 'analytics'])->name('admin.analytics');
     Route::get('/reports', [AdminController::class, 'reports'])->name('admin.reports');
@@ -153,6 +154,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
