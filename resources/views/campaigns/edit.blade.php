@@ -179,33 +179,37 @@
                 </div>
 
                 <!-- New Categories Selection -->
-                <div>
+                <div class="col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-3">
                         Additional Categories (Optional)
                     </label>
-                    <p class="text-gray-500 text-sm mb-3">Select up to 3 categories that best describe your campaign</p>
+                    <p class="text-gray-500 text-sm mb-4">Select up to 3 categories that best describe your campaign</p>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        @foreach($categories as $category)
-                        <label class="relative flex items-start p-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg cursor-pointer transition duration-200">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        @forelse($categories as $category)
+                        <label class="relative flex items-center p-4 bg-white hover:bg-gray-50 border-2 border-gray-200 hover:border-blue-300 rounded-lg cursor-pointer transition duration-200 min-h-[100px]">
                             <input type="checkbox" 
                                    name="categories[]" 
                                    value="{{ $category->id }}" 
-                                   class="category-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-1"
+                                   class="category-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0"
                                    {{ in_array($category->id, old('categories', $campaign->categories->pluck('id')->toArray())) ? 'checked' : '' }}>
-                            <div class="ml-3 flex-grow">
-                                <div class="flex items-center">
+                            <div class="ml-3 flex-1 min-w-0">
+                                <div class="flex items-center mb-2">
                                     @if($category->icon)
-                                    <i class="{{ $category->icon }} mr-2" style="color: {{ $category->color }}"></i>
+                                    <i class="{{ $category->icon }} text-xl mr-2 flex-shrink-0" style="color: {{ $category->color }}"></i>
                                     @endif
-                                    <span class="text-sm font-medium text-gray-900">{{ $category->name }}</span>
+                                    <span class="text-sm font-semibold text-gray-900">{{ $category->name }}</span>
                                 </div>
                                 @if($category->description)
-                                <p class="text-xs text-gray-500 mt-1">{{ $category->description }}</p>
+                                <p class="text-xs text-gray-600 leading-relaxed">{{ $category->description }}</p>
                                 @endif
                             </div>
                         </label>
-                        @endforeach
+                        @empty
+                        <div class="col-span-full p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <p class="text-yellow-700">No categories available. Please contact the administrator.</p>
+                        </div>
+                        @endforelse
                     </div>
                     
                     <div id="category-limit-warning" class="hidden mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-yellow-700 text-sm">

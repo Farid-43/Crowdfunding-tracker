@@ -8,7 +8,7 @@
             <div class="flex">
         <!-- Sidebar -->
         <div class="w-64 bg-slate-800 text-white min-h-screen">
-            <div class="p-6">
+            <div class="px-6 pb-6">
                 <div class="flex items-center mb-8">
                     <div class="bg-blue-600 p-2 rounded-lg mr-3">
                         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
